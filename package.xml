@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>spectracom</name>
+  <version>1.1.0</version>
+  <description>The spectracom package</description>
+
+  <maintainer email="chris.collins@is4s.com">Chris Collins</maintainer>
+
+  <license>Proprietary-FOUO</license>
+
+  <url type="website">http://gitlab.is4s-auburn.com/</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <!-- <run_depend>serial</run_depend> -->
+  <!-- <build_depend>serial</build_depend>   -->
+  <!-- <run_depend>timeutils</run_depend> -->
+  <!-- <build_depend>timeutils</build_depend> -->
+
+</package>
