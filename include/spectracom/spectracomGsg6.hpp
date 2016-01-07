@@ -21,7 +21,7 @@
 #ifndef SPECTRACOM_GSG6_HPP
 #define SPECTRACOM_GSG6_HPP
 
-#include <string>
+//#include <string>
 #include <iostream>
 
 //#include <functional>
@@ -39,24 +39,24 @@ namespace spectracom {
     ~Spectracom(){};
     
     // \brief   Opens connection to simulator
-    bool connect(std::string remoteIp, uint16_t remotePort) {
-
-      // Connect boost signal 
-      connection_.receivedMessage.connect(boost::bind(&Spectracom::bufferIncomingData, this, _1, _2));
-
-      // Create TCP connection
-      return connection_.connect(remoteIp, remotePort);
-    };
+    bool connect(std::string remoteIp, uint16_t remotePort);
 
     // \brief  Sends data to simulator
-    bool send(std::string data) {
-      return connection_.send(data);
-    };
+    bool send(std::string data);
 
 
-    /// Common Commands
+    // -------------------------------------------------
+    // Queries
+    
     // \brief [*IDN?] Simulator Identification Query
     bool queryIdentification();
+    
+    // -------------------------------------------------
+    // Commands
+    
+    
+    // \brief  Signal generated for log message occurance
+    bs2::signal<void(const std::string &, const LogLevel &)> log;
     
   private:
     
@@ -73,6 +73,7 @@ namespace spectracom {
     // EthernetConnection object
     EthernetConnection connection_;
     
+    Queries query_;
   };
 }
 

@@ -1,5 +1,3 @@
-#include <iostream>
-#include <string>
 #include "spectracom/spectracomGsg6.hpp"
 
 
@@ -10,7 +8,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    spectracom::Spectracom device;
+    spectracom::Spectracom * device = new spectracom::Spectracom;
 
     
     std::string ip(argv[1]);
@@ -18,18 +16,18 @@ int main(int argc, char **argv)
     istringstream(argv[2]) >> port;
 
     // Connect to Receiver
-    bool result = device.connect(ip,port);
-        if (result) {
-            cout << "Successfully connected." << endl;
-        }
-        else {
-            cout << "Failed to connect." << endl;
-            return -1;
-        }
+//    bool result = device->connect(ip,port);
+//    if (result) {
+//        cout << "Successfully connected." << endl;
+//    }
+//    else {
+//        cout << "Failed to connect." << endl;
+//        return -1;
+//    }
 
     // loop forever
     while(1) {
-      device.send("*TST?\n");
+      device->send("*TST?\n");
       usleep(100 * 1000); // sleep for 50 ms
 
     }

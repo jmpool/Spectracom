@@ -61,6 +61,7 @@ set(SPECTRACOM_HEADERS  include/spectracom/spectracomGsg6.hpp
                         include/spectracom/msg/Options.hpp
                         include/spectracom/msg/Commands.hpp
                         include/spectracom/msg/Queries.hpp
+                        include/spectracom/msg/Errors.hpp
                         include/spectracom/PracticalSocket.h
                         include/spectracom/EthernetConnection.hpp)
 
@@ -81,8 +82,7 @@ IF(BUILD_EXAMPLES)
 # Declare a cpp executable
 add_executable(spectracom_example examples/test.cpp)
 target_link_libraries(spectracom_example
-                      spectracom
-                     ${catkin_LIBRARIES})
+                      spectracom)
 ENDIF(BUILD_EXAMPLES)
 
 #############

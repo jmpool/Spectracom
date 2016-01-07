@@ -11,12 +11,27 @@
 
 #include <string>
 #include <array>
-#include <algorithm>
 
 namespace spectracom {
   
+  // \brief  Spectracom Query messages
+  //
+  // \details Class containing Enumeration of all query message headings and
+  //          their corresponding string values according to Spectracom
+  //          protocols, and functions converting between them.
+  //
+
   class Queries {
-    enum class MsgIdEnum {
+  public:
+    
+    // \brief   Number of values in MsgIdEnum and in msgIdStringArray
+    static const size_t totalQueries = 75;
+    
+    // \brief   Char on end of MsgId to indicate it's a query
+    static const char queryIndicator = '?';
+      
+    // \brief   Enum of all valid Spectracom query message IDs
+    enum class MsgIds {
       /// Common
       Common_EventStatusEnable,
       Common_EventStatusRegister,
@@ -49,15 +64,11 @@ namespace spectracom {
       Source_Scenario_Log,
       Source_Scenario_Observations,
       Source_Scenario_LogNavDataToRinex,
-      //      Source_Scenario_SatelliteId[n],
-      //      Source_Signal_SignalType[n],
-      Source_Scenario_SignalType,
-      //      Source_Scenario_Frequency[n],
-      Source_Scenario_Frequency,
-      //      Source_Scenario_ChannelPower[n],
-      Source_Scenario_ChannelPower,
-      //      Source_Scenario_SvModel[n],
-      Source_Scenario_SvModel,
+      Source_Scenario_SatelliteId,          // [n]
+      Source_Signal_SignalType,             // [n]
+      Source_Scenario_Frequency,            // [n]
+      Source_Scenario_ChannelPower,         // [n]
+      Source_Scenario_SvModel,              // [n]
       Source_Scenario_ListModels,
       Source_Scenario_AntennaModel,
       Source_Scenario_TroposphericModel,
@@ -69,7 +80,7 @@ namespace spectracom {
       Source_Scenario_RtcmMessages,
       Source_Scenario_RtcmConfig,
       Source_Scenario_DuplicateSv,
-      Source_Scenario_Multipath,
+      Source_Scenario_Multipath,            // [n]
       Source_Keylock_Password,
       Source_Keylock_Status,
       /// TODO: Mass Memory Commands
@@ -99,113 +110,108 @@ namespace spectracom {
       Source_Scenario_Doppler,
       Source_Scenario_SvRange,
       Source_Scenario_ChannelInView,
-      Source_Scenario_SvInView
-      //      Source_Scenario_SvPosition,
+      Source_Scenario_SvInView,
+      Source_Scenario_SvPosition           // [n]
+    };
       
+    const std::array<std::string, totalQueries> msgIdStringArray = {
+      {
+        "*ESE",
+        "*ESR",
+        "*IDN",
+        "*OPC",
+        "*SRE",
+        "*STB",
+        "*TST",
+        "*WAI",
+        "SYSTEM:ERROR",
+        "SOURCE:POWER",
+        "SOURCE:EXTREF",
+        "SOURCE:PPSOUTPUT",
+        "SOURCE:EXTATT",
+        "SOURCE:NOISE:CONTROL",
+        "SOURCE:NOISE:CNO",
+        "SOURCE:NOISE:BW",
+        "SOURCE:NOISE:OFFSET",
+        "SOURCE:ONECHN:CONTROL",
+        "SOURCE:ONECHN:SATID",
+        "SOURCE:ONECHN:STARTTIME",
+        "SOURCE:ONECHN:EPHEMERIS",
+        "SOURCE:ONECHN:FREQUENCY",
+        "SOURCE:ONECHN:SIGNALTYPE",
+        "SOURCE:SCENARIO:LOAD",
+        "SOURCE:SCENARIO:CONTROL",
+        "SOURCE:SCENARIO:PROPENV",
+        "SOURCE:SCENARIO:LOG",
+        "SOURCE:SCENARIO:OBSERVATION",
+        "SOURCE:SCENARIO:NAV",
+        "SOURCE:SCENARIO:SATID",      // [n]
+        "SOURCE:SCENARIO:SIGNALTYPE", // [n]
+        "SOURCE:SCENARIO:FREQUENCY",  // [n]
+        "SOURCE:SCENARIO:POWER",      // [n]
+        "SOURCE:SCENARIO:SVMODEL",    // [n]
+        "SOURCE:SCENARIO:LIST",
+        "SOURCE:SCENARIO:ANTENNAMODEL",
+        "SOURCE:SCENARIO:TROPOMODEL",
+        "SOURCE:SCENARIO:IONOMODEL",
+        "SOURCE:SCENARIO:KEEPALTITUDE",
+        "SOURCE:SCENARIO:POSITION",
+        "SOURCE:SCENARIO:ECEFPOSITION",
+        "SOURCE:SCENARIO:DATETIME",
+        "SOURCE:SCENARIO:RTCM",
+        "SOURCE:SCENARIO:RTCMCFG",
+        "SOURCE:SCENARIO:DUPLICATE",
+        "SOURCE:SCENARIO:MULTIPATH",  // [n]
+        "SOURCE:KEYLOCK:PASSWORD",
+        "SOURCE:KEYLOCK:STATUS",
+        /// TODO: Mass Memory Commands
+        /// TODO: Sensors Commands
+        "SOURCE:SCENARIO:SPEED",
+        "SOURCE:SCENARIO:HEADING",
+        "SOURCE:SCENARIO:RATEHEADING",
+        "SOURCE:SCENARIO:TURNRATE",
+        "SOURCE:SCENARIO:TURNRADIUS",
+        "SOURCE:SCENARIO:VELOCITY",
+        "SOURCE:SCENARIO:VSPEED",
+        "SOURCE:SCENARIO:ENUVELOCITY",
+        "SOURCE:SCENARIO:ECEFVELOCITY",
+        "SOURCE:SCENARIO:ACCELERATION",
+        "SOURCE:SCENARIO:VACCEL",
+        "SOURCE:SCENARIO:ENUACCEL",
+        "SOURCE:SCENARIO:ECEFACCEL",
+        "SOURCE:SCENARIO:PRYATTITUDE",
+        "SOURCE:SCENARIO:DPRYATTITUDE",
+        "SOURCE:SCENARIO:PRYRATE",
+        "SOURCE:SCENARIO:DPRYRATE",
+        "SOURCE:SCENARIO:KEPLER",
+        "SOURCE:SCENARIO:RUNTIME",
+        "SOURCE:SCENARIO:DATETIME",
+        "SOURCE:SCENARIO:ELAPSEDTIME",
+        "SOURCE:SCENARIO:RSGUNDERFLOW",
+        "SOURCE:SCENARIO:DOPPLER",
+        "SOURCE:SCENARIO:PRANGE",
+        "SOURCE:SCENARIO:CHINVIEW",
+        "SOURCE:SCENARIO:SVINVIEW",
+        "SOURCE:SCENARIO:SVPOS"       // [n]
+      }
     };
     
-    std::array<std::string, 70> msgIdStringArray {
-      "*ESE?",
-      "*ESR",
-      "*IDN?",
-      "*OPC?",
-      "*SRE?",
-      "*STB?",
-      "*TST?",
-      "*WAI?",
-      "SYSTEM:ERROR?",
-      "SOURCE:POWER?",
-      "SOURCE:EXTREF?",
-      "SOURCE:PPSOUTPUT?",
-      "SOURCE:EXTATT?",
-      "SOURCE:NOISE:CONTROL?",
-      "SOURCE:NOISE:CNO?",
-      "SOURCE:NOISE:BW?",
-      "SOURCE:NOISE:OFFSET?",
-      "SOURCE:ONECHN:CONTROL?",
-      "SOURCE:ONECHN:SATID?",
-      "SOURCE:ONECHN:STARTTIME?",
-      "SOURCE:ONECHN:EPHEMERIS?",
-      "SOURCE:ONECHN:FREQUENCY?",
-      "SOURCE:ONECHN:SIGNALTYPE?",
-      "SOURCE:SCENARIO:LOAD?",
-      "SOURCE:SCENARIO:CONTROL?",
-      "SOURCE:SCENARIO:PROPENV?",
-      "SOURCE:SCENARIO:LOG?",
-      "SOURCE:SCENARIO:OBSERVATION?",
-      "SOURCE:SCENARIO:NAV?",
-      //      "SOURCE:SCENARIO:SATID[n]?",
-      //      "SOURCE:SCENARIO:SIGNALTYPE[n]?",
-      //      "SOURCE:SCENARIO:FREQUENCY[n]?",
-      "SOURCE:SCENARIO:FREQUENCY?",
-      //      "SOURCE:SCENARIO:POWER[n]?",
-      "SOURCE:SCENARIO:POWER?",
-      //      "SOURCE:SCENARIO:SVMODEL[n]?",
-      "SOURCE:SCENARIO:SVMODEL?",
-      "SOURCE:SCENARIO:LIST?",
-      "SOURCE:SCENARIO:ANTENNAMODEL?",
-      "SOURCE:SCENARIO:TROPOMODEL?",
-      "SOURCE:SCENARIO:IONOMODEL?",
-      "SOURCE:SCENARIO:KEEPALTITUDE?",
-      "SOURCE:SCENARIO:POSITION?",
-      "SOURCE:SCENARIO:ECEFPOSITION?",
-      "SOURCE:SCENARIO:DATETIME?",
-      "SOURCE:SCENARIO:RTCM?",
-      "SOURCE:SCENARIO:RTCMCFG?",
-      "SOURCE:SCENARIO:DUPLICATE?",
-      //      "SOURCE:SCENARIO:MULTIPATH[n]?",
-      "SOURCE:KEYLOCK:PASSWORD?",
-      "SOURCE:KEYLOCK:STATUS?",
-      /// TODO: Mass Memory Commands
-      /// TODO: Sensors Commands
-      "SOURCE:SCENARIO:SPEED?",
-      "SOURCE:SCENARIO:HEADING?",
-      "SOURCE:SCENARIO:RATEHEADING?",
-      "SOURCE:SCENARIO:TURNRATE?",
-      "SOURCE:SCENARIO:TURNRADIUS?",
-      "SOURCE:SCENARIO:VELOCITY?",
-      "SOURCE:SCENARIO:VSPEED?",
-      "SOURCE:SCENARIO:ENUVELOCITY?",
-      "SOURCE:SCENARIO:ECEFVELOCITY?",
-      "SOURCE:SCENARIO:ACCELERATION?",
-      "SOURCE:SCENARIO:VACCEL?",
-      "SOURCE:SCENARIO:ENUACCEL?",
-      "SOURCE:SCENARIO:PRYATTITUDE?",
-      "SOURCE:SCENARIO:DPRYATTITUDE?",
-      "SOURCE:SCENARIO:PRYRATE?",
-      "SOURCE:SCENARIO:DPRYRATE?",
-      "SOURCE:SCENARIO:KEPLER?",
-      "SOURCE:SCENARIO:RUNTIME?",
-      "SOURCE:SCENARIO:DATETIME?",
-      "SOURCE:SCENARIO:ELAPSEDTIME?",
-      "SOURCE:SCENARIO:RSGUNDERFLOW?",
-      "SOURCE:SCENARIO:DOPPLER?",
-      "SOURCE:SCENARIO:PRANGE?",
-      "SOURCE:SCENARIO:CHINVIEW?",
-      "SOURCE:SCENARIO:SVINVIEW?"
-      //      "SOURCE:SCENARIO:SVPOS[n]?",
-    };
-    
-    std::string toString(const MsgIdEnum &inputEnum) {
-      return msgIdStringArray[(std::size_t)inputEnum];
+    std::string toString(MsgIds inputEnum) {
+      return msgIdStringArray.at((std::size_t)inputEnum);
     }
-    
-    MsgIdEnum toMsgEnum(const std::string &inputString) {
-      std::string *result = std::find(msgIdStringArray.begin(),
-                                      msgIdStringArray.end(),
-                                      inputString);
-      
+  
+    MsgIds toEnum(std::string inputString) {
+      const std::string *result = std::find(msgIdStringArray.begin(),
+                                            msgIdStringArray.end(),
+                                            inputString);
       //      if (result == stringArray.end()) {
       //        return ;
       //      } // TODO: Add exception throw for if string not valid
       
-      return (MsgIdEnum)(std::distance(msgIdStringArray.begin(), result)-1);
+      return (MsgIds)(std::distance(msgIdStringArray.begin(),
+                                    result)-1);
     }
-    
+  
   };
-
-
 }
-
-
 #endif // SPECTRACOM_QUERIES_HPP

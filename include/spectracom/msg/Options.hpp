@@ -14,12 +14,20 @@
 #define SPECTRACOM_OPTIONS_HPP
 
 namespace spectracom {
-    
-  /// /brief  Available optional capabilities of connected simulator
-  /// /details
+
+  // \brief   Spectracom device Options
+  //
+  // \details Class containing Device options. Available options are returned in
+  //          response to query '*IDN?'. Contains enum and string forms of the
+  //          options and functions to convert between.
   class Options {
   public:
-    enum class MsgEnum : std::size_t {
+
+    // \brief   Number of values in MsgIdEnum and in msgIdStringArray
+    static const size_t totalOptions = 24;
+    
+    // \brief   Enum of all valid device options
+    enum class OptionsEnum {
       Sbas,
       Trajectories,
       FixedBandwidthNoise,
@@ -46,7 +54,8 @@ namespace spectracom {
       IrnssL5
     };
     
-    std::array<std::string, 24> stringArray {
+    const std::array<std::string, totalOptions> optionsStringArray {
+      {
       "SBAS",
       "TRAJ",
       "FN",
@@ -71,22 +80,23 @@ namespace spectracom {
       "QZ",
       "VIS",
       "IRN"
+      }
     };
     
-    std::string toString(const MsgEnum &inputEnum) {
-      return stringArray[(std::size_t)inputEnum];
+    std::string toString(OptionsEnum inputEnum) {
+      return optionsStringArray[(std::size_t)inputEnum];
     }
     
-    MsgEnum toMsgEnum(const std::string &inputString) {
-      std::string *result = std::find(stringArray.begin(), stringArray.end(), inputString);
-      
+    OptionsEnum toOptionsEnum(std::string inputString) {
+      const std::string *result = std::find(optionsStringArray.begin(),
+                                            optionsStringArray.end(),
+                                            inputString);
       //      if (result == stringArray.end()) {
       //        return ;
       //      } // TODO: Add exception throw for if string not valid
       
-      return (MsgEnum)(std::distance(stringArray.begin(), result)-1);
+      return (OptionsEnum)(std::distance(optionsStringArray.begin(), result)-1);
     }
   };
-
 }
 #endif // SPECTRACOM_OPTIONS_HPP

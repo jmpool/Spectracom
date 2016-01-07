@@ -14,7 +14,8 @@
 /// \brief    Contains the declaration of the EthernetConnection class.
 /// \details  The EthernetConnection class is a wrapper for PracticalSocket,
 ///           adapting it to the SCPI ethernet commmunications protocol used 
-///           by the Spectracom GSG simulator.
+///           by the Spectracom GSG simulator. If using the GSG 10 Hz epoch
+///           rate, it is recommended to use USB communications instead.
 ///
 /// Chris Collins <chris.collins@is4s.com>
 /// January 5, 2016

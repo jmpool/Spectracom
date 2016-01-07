@@ -26,9 +26,15 @@
 #include "spectracom/msg/Options.hpp"
 #include "spectracom/msg/Commands.hpp"
 #include "spectracom/msg/Queries.hpp"
+#include "spectracom/msg/Errors.hpp"
 
 namespace spectracom {
 
+  const char commaDelimiter = ',';
+  const char whitespaceDelimiter = ' ';
+  const char endlineIndicator = '\n';
+  const char protocolErrorStartChar = '-';
+  
   /// \brief  Enables Event Status Bits Register
   /// \details  Used in command '*ESE', '*ESE?', '*ESR?'
   enum class EventStatusEnableRegister {
@@ -62,9 +68,7 @@ namespace spectracom {
     QuestionableOutputSignal              = 0b00001000,
     ErrorAvailable                        = 0b00000100
   };
-
   
-  const char protocolErrorStartChar = '-';
   enum class ProtocolErrorIds {
     UnrecognizedError = 0,
     GenericCommandError = 100,
@@ -102,14 +106,7 @@ namespace spectracom {
     InvalidChecksum = 1401,
     FileTransferLengthInvalid = 1403,
     InvalidFileType = 1404,
-    
-    
-    
   };
-
-
-
-
 
 }
 #endif  // SPECTRACOM_GSG6_PROTOCOL_HPP

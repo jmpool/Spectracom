@@ -14,10 +14,19 @@
 #include <algorithm>
 
 namespace spectracom {
-  
+  // \brief  Spectracom Command messages
+  //
+  // \details Class containing Enumeration of all command message headings and
+  //          their corresponding string values according to Spectracom
+  //          protocols, and functions converting between them.
+  //
   class Commands {
   public:
-    enum class MsgIdEnum {
+    // \brief   Number of values in MsgIdEnum and in msgIdStringArray
+    static const size_t totalCommands = 66;
+    
+    // \brief   Enum of all valid Spectracom command message IDs
+    enum class MsgIds {
       /// Common
       Common_ClearStatus,
       Common_EventStatusEnable,
@@ -48,8 +57,7 @@ namespace spectracom {
       Source_Scenario_Observations,
       Source_Scenario_LogNavDataToRinex,
       Source_Scenario_NavBits,
-//      Source_Scenario_ChannelPower[n],
-      Source_Scenario_ChannelPower,
+      Source_Scenario_ChannelPower,               // [n]
       Source_Scenario_FrequencyBandPower,
       Source_Scenario_AntennaModel,
       Source_Scenario_TroposphericModel,
@@ -59,11 +67,9 @@ namespace spectracom {
       Source_Scenario_Ecef_Position,
       Source_Scenario_StartTime,
       Source_Scenario_RtcmConfig,
-      Source_Scenario_DuplicateSv,
-//      Source_Scenario_DuplicateSv[n],
-//      Source_Scenario_Multipath[n],
-//      Source_Scenario_DeleteSv[n],
-      Source_Scenario_DeleteSv,
+      Source_Scenario_DuplicateSv,                // [n]
+      Source_Scenario_Multipath,                  // [n]
+      Source_Scenario_DeleteSv,                   // [n]
       Source_File_Type,
       Source_File_Name,
       Source_File_Length,
@@ -91,11 +97,11 @@ namespace spectracom {
       Source_Scenario_AttitudeRateRadians,
       Source_Scenario_AttitudeRateDegrees,
       Source_Scenario_KeplerOrbitParameters,
-      Source_Scenario_UnderflowDetection,
-
+      Source_Scenario_UnderflowDetection
     };
     
-    std::array<std::string, 69> msgIdStringArray {
+    const std::array<std::string, totalCommands> msgIdStringArray {
+      {
       "*CLS",
       "*ESE",
       "*OPC",
@@ -123,8 +129,7 @@ namespace spectracom {
       "SOURCE:SCENARIO:OBSERVATION",
       "SOURCE:SCENARIO:NAV",
       "SOURCE:SCENARIO:NAVBITS",
-      "SOURCE:SCENARIO:POWER[n]",
-      "SOURCE:SCENARIO:POWER",
+      "SOURCE:SCENARIO:POWER",                    // [n]
       "SOURCE:SCENARIO:FREQBAND:POWER",
       "SOURCE:SCENARIO:ANTENNAMODEL",
       "SOURCE:SCENARIO:TROPOMODEL",
@@ -134,11 +139,9 @@ namespace spectracom {
       "SOURCE:SCENARIO:ECEFPOSITION",
       "SOURCE:SCENARIO:DATETIME",
       "SOURCE:SCENARIO:RTCMCFG",
-      "SOURCE:SCENARIO:DUPLICATE",
-//      "SOURCE:SCENARIO:DUPLICATE[n]",
-//      "SOURCE:SCENARIO:MULTIPATH[n]",
-//      "SOURCE:SCENARIO:DELETE[n]",
-      "SOURCE:SCENARIO:DELETE",
+      "SOURCE:SCENARIO:DUPLICATE",                // [n]
+      "SOURCE:SCENARIO:MULTIPATH",                // [n]
+      "SOURCE:SCENARIO:DELETE",                   // [n]
       "SOURCE:FILE:TYPE",
       "SOURCE:FILE:NAME",
       "SOURCE:FILE:LENGTH",
@@ -165,25 +168,24 @@ namespace spectracom {
       "SOURCE:SCENARIO:PRYRATE",
       "SOURCE:SCENARIO:DPRYRATE",
       "SOURCE:SCENARIO:KEPLER",
-      "SOURCE:SCENARIO:RSGUNDERFLOW",
+      "SOURCE:SCENARIO:RSGUNDERFLOW"
+      }
     };
-    
-    std::string toString(const MsgIdEnum &inputEnum) {
+
+    std::string toString(MsgIds inputEnum) {
       return msgIdStringArray[(std::size_t)inputEnum];
     }
     
-    MsgIdEnum toMsgEnum(const std::string &inputString) {
-      std::string *result = std::find(msgIdStringArray.begin(),
-                                      msgIdStringArray.end(),
-                                      inputString);
-      
+    MsgIds toEnum(std::string inputString) {
+      const std::string *result = std::find(msgIdStringArray.begin(),
+                                            msgIdStringArray.end(),
+                                            inputString);
       //      if (result == stringArray.end()) {
       //        return ;
       //      } // TODO: Add exception throw for if string not valid
       
-      return (MsgIdEnum)(std::distance(msgIdStringArray.begin(), result)-1);
+      return (MsgIds)(std::distance(msgIdStringArray.begin(), result)-1);
     }
-  };
-  
+};
 }
 #endif // SPECTRACOM_COMMANDS_HPP
