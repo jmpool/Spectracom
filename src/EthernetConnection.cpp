@@ -18,8 +18,11 @@
 
 namespace spectracom {
 
-EthernetConnection::EthernetConnection()
-    : isConnected_(false), running_(false), incomingBufferSize_(1000) {}
+EthernetConnection::EthernetConnection(int bufferSize)
+    : isConnected_(false), running_(false)
+  {
+    incomingBufferSize_ = bufferSize;
+  }
 
 bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
 
@@ -63,6 +66,8 @@ bool EthernetConnection::send(uint8_t *data, size_t length) {
     output_err << "EthernetConnection: Error sending data: "
                << e.what();
     log(output_err.str(), LogLevel::Error);
+    isConnected_ = false;
+    running_ = false;
     return false;
   }
 
@@ -83,6 +88,8 @@ void EthernetConnection::listenToSocket() {
       output_err << "EthernetConnection: Error receiving data: "
                  << e.what();
       log(output_err.str(), LogLevel::Error);
+      isConnected_ = false;
+      running_ = false;
       return;
     }
 

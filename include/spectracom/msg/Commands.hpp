@@ -16,14 +16,14 @@
 namespace spectracom {
   // \brief  Spectracom Command messages
   //
-  // \details Class containing Enumeration of all command message headings and
-  //          their corresponding string values according to Spectracom
+  // \details Namespace containing Enumeration of all command message headings
+  //          and their corresponding string values according to Spectracom
   //          protocols, and functions converting between them.
   //
-  class Commands {
-  public:
+  namespace commandIds {
+    
     // \brief   Number of values in MsgIdEnum and in msgIdStringArray
-    static const size_t totalCommands = 66;
+    const size_t totalIds = 66;
     
     // \brief   Enum of all valid Spectracom command message IDs
     enum class MsgIds {
@@ -100,7 +100,7 @@ namespace spectracom {
       Source_Scenario_UnderflowDetection
     };
     
-    const std::array<std::string, totalCommands> msgIdStringArray {
+    const std::array<std::string, totalIds> msgIdStringArray {
       {
       "*CLS",
       "*ESE",
@@ -172,11 +172,11 @@ namespace spectracom {
       }
     };
 
-    std::string toString(MsgIds inputEnum) {
+    static std::string toString(MsgIds inputEnum) {
       return msgIdStringArray[(std::size_t)inputEnum];
     }
     
-    MsgIds toEnum(std::string inputString) {
+    static MsgIds toEnum(std::string inputString) {
       const std::string *result = std::find(msgIdStringArray.begin(),
                                             msgIdStringArray.end(),
                                             inputString);
@@ -184,8 +184,9 @@ namespace spectracom {
       //        return ;
       //      } // TODO: Add exception throw for if string not valid
       
-      return (MsgIds)(std::distance(msgIdStringArray.begin(), result)-1);
+      return (MsgIds)(std::distance(msgIdStringArray.begin(),
+                                    result)-1);
     }
-};
+  }
 }
 #endif // SPECTRACOM_COMMANDS_HPP

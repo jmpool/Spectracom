@@ -16,19 +16,17 @@ namespace spectracom {
   
   // \brief  Spectracom Query messages
   //
-  // \details Class containing Enumeration of all query message headings and
+  // \details Namespace containing Enumeration of all query message headings and
   //          their corresponding string values according to Spectracom
   //          protocols, and functions converting between them.
   //
-
-  class Queries {
-  public:
+  namespace queryIds {
     
     // \brief   Number of values in MsgIdEnum and in msgIdStringArray
-    static const size_t totalQueries = 75;
+    const size_t totalIds = 75;
     
     // \brief   Char on end of MsgId to indicate it's a query
-    static const char queryIndicator = '?';
+    const char queryIndicator = '?';
       
     // \brief   Enum of all valid Spectracom query message IDs
     enum class MsgIds {
@@ -114,7 +112,7 @@ namespace spectracom {
       Source_Scenario_SvPosition           // [n]
     };
       
-    const std::array<std::string, totalQueries> msgIdStringArray = {
+    const std::array<std::string, totalIds> msgIdStringArray = {
       {
         "*ESE",
         "*ESR",
@@ -196,11 +194,11 @@ namespace spectracom {
       }
     };
     
-    std::string toString(MsgIds inputEnum) {
+    static std::string toString(MsgIds inputEnum) {
       return msgIdStringArray.at((std::size_t)inputEnum);
     }
-  
-    MsgIds toEnum(std::string inputString) {
+
+    static MsgIds toEnum(std::string inputString) {
       const std::string *result = std::find(msgIdStringArray.begin(),
                                             msgIdStringArray.end(),
                                             inputString);
@@ -211,7 +209,6 @@ namespace spectracom {
       return (MsgIds)(std::distance(msgIdStringArray.begin(),
                                     result)-1);
     }
-  
-  };
+  }
 }
 #endif // SPECTRACOM_QUERIES_HPP

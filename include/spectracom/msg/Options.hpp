@@ -17,17 +17,15 @@ namespace spectracom {
 
   // \brief   Spectracom device Options
   //
-  // \details Class containing Device options. Available options are returned in
-  //          response to query '*IDN?'. Contains enum and string forms of the
-  //          options and functions to convert between.
-  class Options {
-  public:
-
+  // \details Namespace containing Device options. Available options are
+  //          returned in response to query '*IDN?'. Contains enum and string
+  //          forms of the options and functions to convert between.
+  namespace deviceOptions {
     // \brief   Number of values in MsgIdEnum and in msgIdStringArray
-    static const size_t totalOptions = 24;
+    const size_t totalIds = 24;
     
     // \brief   Enum of all valid device options
-    enum class OptionsEnum {
+    enum class Enum {
       Sbas,
       Trajectories,
       FixedBandwidthNoise,
@@ -54,7 +52,7 @@ namespace spectracom {
       IrnssL5
     };
     
-    const std::array<std::string, totalOptions> optionsStringArray {
+    const std::array<std::string, deviceOptions::totalIds> stringArray {
       {
       "SBAS",
       "TRAJ",
@@ -83,20 +81,22 @@ namespace spectracom {
       }
     };
     
-    std::string toString(OptionsEnum inputEnum) {
-      return optionsStringArray[(std::size_t)inputEnum];
+    static std::string toString(deviceOptions::Enum inputEnum) {
+      return deviceOptions::stringArray[(std::size_t)inputEnum];
     }
     
-    OptionsEnum toOptionsEnum(std::string inputString) {
-      const std::string *result = std::find(optionsStringArray.begin(),
-                                            optionsStringArray.end(),
+    static deviceOptions::Enum toEnum(std::string inputString) {
+      const std::string *result = std::find(deviceOptions::stringArray.begin(),
+                                            deviceOptions::stringArray.end(),
                                             inputString);
       //      if (result == stringArray.end()) {
       //        return ;
       //      } // TODO: Add exception throw for if string not valid
       
-      return (OptionsEnum)(std::distance(optionsStringArray.begin(), result)-1);
+      return (deviceOptions::Enum)( std::distance(
+                                    deviceOptions::stringArray.begin(),
+                                    result)-1);
     }
-  };
+  }
 }
 #endif // SPECTRACOM_OPTIONS_HPP

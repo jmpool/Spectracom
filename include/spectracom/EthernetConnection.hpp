@@ -56,7 +56,7 @@ class EthernetConnection {
 
 public:
   /// \brief Constructs the ~EthernetConnection object
-  EthernetConnection();
+  EthernetConnection(int bufferSize=1000);
 
   /// \brief Called on destruction of the ~EthernetConnection object
   ~EthernetConnection(){};
@@ -65,6 +65,8 @@ public:
   /// \returns true if the network sockets are successfully opened
   bool connect(std::string remoteIp, uint16_t remotePort);
 
+  bool isConnected(){return isConnected_;};
+  
   void setRemoteIp(std::string ip){remoteIp_ = ip;};
   void setRemotePort(uint16_t port){remotePort_ = port;}; 
 

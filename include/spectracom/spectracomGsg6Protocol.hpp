@@ -30,6 +30,10 @@
 
 namespace spectracom {
 
+
+  const std::string ModelGsg52 = "GSG-52";
+  const std::string ModelGsg62 = "GSG-62";
+
   const char commaDelimiter = ',';
   const char whitespaceDelimiter = ' ';
   const char endlineIndicator = '\n';
@@ -108,5 +112,76 @@ namespace spectracom {
     InvalidFileType = 1404,
   };
 
+  enum class SelfTest : char {
+    NoError = '0',
+    ErrorInReferenceClock = '1'
+  };
+  
+  enum class PpsFrequency : uint16_t {
+    OneHz = 1,
+    TenHz = 10,
+    OneHundredHz = 100,
+    OneThousandeHz = 1000
+  };
+  
+  namespace signalGeneratorStateResponses {
+    enum class Enum {
+      Running,
+      Stopped,
+      Waiting,
+      Arming,
+      Armed
+    };
+    
+    const std::array<std::string, errorIds::totalIds> stringArray {
+      {
+        "START",
+        "STOP",
+        "WAIT",
+        "ARMING",
+        "ARMED"
+      }
+    };
+    
+    static signalGeneratorStateResponses::Enum toEnum(std::string inputString) {
+      const std::string *result = std::find(stringArray.begin(),
+                                            stringArray.end(),
+                                            inputString);
+      //      if (result == stringArray.end()) {
+      //        return ;
+      //      } // TODO: Add exception throw for if string not valid
+      
+      return (signalGeneratorStateResponses::Enum)(std::distance(stringArray.begin(),
+                                                                 result)-1);
+    }
+    
+  } // end namespace signalGeneratorStateResponses
+  
+  namespace signalGeneratorStateCommands {
+    enum class Enum {
+      Start,
+      Stop,
+      Arm
+    };
+    
+    const std::array<std::string, errorIds::totalIds> stringArray {
+      {
+        "START",
+        "STOP",
+        "ARM"
+      }
+    };
+  } // end namespace signalGeneratorStateCommands
+    
+    
+    
+    
+    
+    
+    
+    
+  
+  
+  
 }
 #endif  // SPECTRACOM_GSG6_PROTOCOL_HPP

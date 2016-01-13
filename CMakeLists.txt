@@ -63,7 +63,8 @@ set(SPECTRACOM_HEADERS  include/spectracom/spectracomGsg6.hpp
                         include/spectracom/msg/Queries.hpp
                         include/spectracom/msg/Errors.hpp
                         include/spectracom/PracticalSocket.h
-                        include/spectracom/EthernetConnection.hpp)
+                        include/spectracom/EthernetConnection.hpp
+                        include/spectracom/ConnectionException.hpp)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
