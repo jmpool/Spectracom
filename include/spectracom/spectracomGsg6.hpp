@@ -26,6 +26,7 @@
 #include "spectracom/spectracomGsg6Protocol.hpp"
 #include "spectracom/exceptions/ConnectionException.hpp"
 #include "spectracom/exceptions/SpectracomErrorException.hpp"
+#include "logutils/logutils.hpp"
 
 namespace spectracom {
 
@@ -34,7 +35,10 @@ namespace spectracom {
   
   class Spectracom {
   public:
-    Spectracom() {};
+    Spectracom(const logutils::LogCallback& log = logutils::printLogToStdOut)
+    : connection_(MAX_BUFFER_SIZE, log),
+      log_(log){};
+
     ~Spectracom(){};
     
     /// \brief  Opens connection to simulator
@@ -55,8 +59,7 @@ namespace spectracom {
     /// \returns  void
     void send(std::string data);
 
-    /// \brief  Signal generated for log message occurance
-    bs2::signal<void(const std::string &, const LogLevel &)> log;
+    void setLogCallback(logutils::LogCallback logCallback);
     
     // -------------------------------------------------
     // Queries
@@ -294,7 +297,7 @@ namespace spectracom {
     bool parseErrorMessage(std::string &message);
     
     /// EthernetConnection object
-    EthernetConnection connection_ {(int)MAX_BUFFER_SIZE};
+    EthernetConnection connection_;
     
     /// Stores last query response
     std::condition_variable queryResponseCondition_;
@@ -309,8 +312,17 @@ namespace spectracom {
     std::string remoteIp_;
     uint16_t remotePort_;
     
+    logutils::LogCallback log_;
     
   }; // end class Spectracom
+  
+  inline
+  void Spectracom::setLogCallback(logutils::LogCallback logCallback)
+  {
+    log_ = logCallback;
+    connection_.setLogCallback(logCallback);
+  }
+  
 } // end namespace spectracom
 #endif // SPECTRACOM_GSG6_HPP
 ///-----------------------------------------------------------------------------

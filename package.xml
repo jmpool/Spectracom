@@ -11,9 +11,7 @@
   <url type="website">http://gitlab.is4s-auburn.com/</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <!-- <run_depend>serial</run_depend> -->
-  <!-- <build_depend>serial</build_depend>   -->
-  <!-- <run_depend>timeutils</run_depend> -->
-  <!-- <build_depend>timeutils</build_depend> -->
+  <build_depend>logutils</build_depend>
+  <run_depend>logutils</run_depend>
 
 </package>

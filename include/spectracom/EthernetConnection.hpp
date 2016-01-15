@@ -31,16 +31,9 @@
 #include <boost/bind.hpp>
 
 #include "spectracom/PracticalSocket.h"
+#include "logutils/logutils.hpp"
 
 namespace bs2 = boost::signals2;
-
-/// \brief Enumeration to define logging levels
-enum class LogLevel {
-  Debug = 1,
-  Info = 2,
-  Warn = 3,
-  Error = 4
-};
 
 namespace spectracom {
 
@@ -56,8 +49,16 @@ class EthernetConnection {
 
 public:
   /// \brief Constructs the ~EthernetConnection object
-  EthernetConnection(int bufferSize=1000);
-
+  EthernetConnection(int bufferSize=1000,
+                     const logutils::LogCallback&
+                     log = logutils::printLogToStdOut)
+  : isConnected_(false),
+    running_(false),
+    log_(log)
+  {
+    incomingBufferSize_ = bufferSize;
+  };
+  
   /// \brief Called on destruction of the ~EthernetConnection object
   ~EthernetConnection(){};
 
@@ -72,17 +73,13 @@ public:
   void setRemoteIp(std::string ip){remoteIp_ = ip;};
   void setRemotePort(uint16_t port){remotePort_ = port;}; 
 
-  //---------------------------------------------------------------------------
-  // Signals
+  void setLogCallback(logutils::LogCallback logCallback);
 
   /// Signal generated when a message is received on the network interface
   bs2::signal<void(uint8_t *, size_t)> receivedMessage;
 
   //---------------------------------------------------------------------------
   // Logging Signals
-
-  /// \brief Signal generated when an log message is received
-  bs2::signal<void(const std::string &, const LogLevel &)> log;
 
   /// \brief Send a packet to the address from remoteIp_ on remotePort_
   /// \param  data    Pointer to a char array containing the data to send
@@ -119,8 +116,17 @@ protected:
   std::string remoteIp_;
   /// Multicast port number
   uint16_t remotePort_;
+  
+  logutils::LogCallback log_;
 
 };
+  
+inline
+void EthernetConnection::setLogCallback(logutils::LogCallback logCallback)
+{
+  log_ = logCallback;
+}
+
 
 } // namespace spectracom
 #endif // ETHERNET_CONNECTION_HPP

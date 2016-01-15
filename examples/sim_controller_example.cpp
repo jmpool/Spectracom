@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
   if(argc < 3) {
-      std::cerr << "Usage: spectracom-test <ip address> <port number>" << std::endl;
+      std::cerr << "Usage: sim_controller_example <ip address> <port number>" << std::endl;
       return 0;
   }
 
@@ -21,8 +21,8 @@ int main(int argc, char **argv)
     double power;
   
   while(1) {
-      device->queryError();
-//    device->queryTransmitPower(power);
+    device->queryError();
+//    device->queryTransmitPower(power); 
     usleep(1000 * 1000); // sleep for 50 ms
 
   }

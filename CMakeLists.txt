@@ -15,18 +15,23 @@ else(ANDROID)
 endif(ANDROID)
 
 option(BUILD_WITH_CATKIN "Build with Catkin?" OFF)
+
 if (DEFINED CATKIN_DEVEL_PREFIX)
   SET(BUILD_WITH_CATKIN ON)
 endif(DEFINED CATKIN_DEVEL_PREFIX)
 
 if (BUILD_WITH_CATKIN)
   message(STATUS "Building with Catkin")
+
+  set(catkin_components logutils)
+
   ## Find catkin macros and libraries
-  # find_package(catkin REQUIRED serial)
+  find_package(catkin COMPONENTS ${catkin_components})
 
   catkin_package(
     INCLUDE_DIRS include
     LIBRARIES spectracom
+    CATKIN_DEPENDS ${catkin_components}
     DEPENDS Boost
   )
 else(BUILD_WITH_CATKIN)
@@ -39,9 +44,10 @@ else(BUILD_WITH_CATKIN)
   SET(CATKIN_GLOBAL_SHARE_DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
   SET(CATKIN_PACKAGE_SHARE_DESTINATION ${CATKIN_GLOBAL_SHARE_DESTINATION}/${PROJECT_NAME})
 
+  find_package(logutils REQUIRED)
   find_package(Boost REQUIRED)
   set(catkin_LIBRARIES ${Boost_LIBRARIES})
-  set(catkin_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+  set(catkin_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${logutils_INCLUDE_DIRS})
 
 endif(BUILD_WITH_CATKIN)
 
@@ -84,6 +90,9 @@ IF(BUILD_EXAMPLES)
 # Declare a cpp executable
 add_executable(spectracom_example examples/test.cpp)
 target_link_libraries(spectracom_example
+                      spectracom)
+add_executable(sim_controller_example examples/sim_controller_example.cpp)
+target_link_libraries(sim_controller_example
                       spectracom)
 ENDIF(BUILD_EXAMPLES)
 

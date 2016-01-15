@@ -13,11 +13,11 @@ namespace spectracom {
     // Create TCP connection
     if (connection_.connect(remoteIp, remotePort)) {
       out << "Connected to device at " << remoteIp << " : " << remotePort;
-      log(out.str(), LogLevel::Info);
+      log_(out.str(), logutils::LogLevel::Info);
       return true;
     }
     out << "Failed to connect to device at " << remoteIp << " : " << remotePort;
-    log(out.str(), LogLevel::Error);
+    log_(out.str(), logutils::LogLevel::Error);
     return false;
   }
   
@@ -28,7 +28,7 @@ namespace spectracom {
     }
     attempts++;
     
-    log("Attempting to reconnect to device.",LogLevel::Info);
+    log_("Attempting to reconnect to device.",logutils::LogLevel::Info);
     connection_.receivedMessage.disconnect_all_slots();
     connection_.disconnect();
     
@@ -44,12 +44,12 @@ namespace spectracom {
     if (isConnected()) {
       if (connection_.send(data)) {
         output << "In Spectracom::send(): Sent message " << data;
-        log(output.str(), LogLevel::Debug);
+        log_(output.str(), logutils::LogLevel::Debug);
         return;
       }
     }
       output  << "In Spectracom::send(): Faild to send message " << data;
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
     
     if(reConnect()) { // resend data if successfully reconnected
       send(data);
@@ -63,12 +63,12 @@ namespace spectracom {
     try {
       
       if (*message == '\n') {
-//        log("Got only endline char.", LogLevel::Debug);
+//        log_("Got only endline char.", logutils::LogLevel::Debug);
         return;
       }
       
       std::string msgString ((char*)message, length);
-      log(msgString, LogLevel::Debug);
+      log_(msgString, logutils::LogLevel::Debug);
       
       if(parseErrorMessage(msgString)) { // Look for error message
         return;
@@ -85,7 +85,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::parseIncomingData(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
     }
     return;
   }
@@ -97,12 +97,12 @@ namespace spectracom {
                                            errorIds::msgStringArray.end(),
                                            message);
       
-//      log("parseErrorMessage() : ", LogLevel::Debug);
-//      log(message, LogLevel::Debug);
+//      log_("parseErrorMessage() : ", logutils::LogLevel::Debug);
+//      log_(message, logutils::LogLevel::Debug);
       
       // If no message found return
       if (*index == *errorIds::msgStringArray.end()) {
-        log("No Error message found.", LogLevel::Debug);
+        log_("No Error message found.", logutils::LogLevel::Debug);
         return false;
       }
 
@@ -115,14 +115,14 @@ namespace spectracom {
 //        std::stringstream debug1;
 //        debug1  << "Parsed ID = " << message.substr(0,message.find(commaDelimiter))
 //                << std::endl << "Parsed string = " << error_.errorString;
-//        log(debug1.str(), LogLevel::Debug);
+//        log_(debug1.str(), logutils::LogLevel::Debug);
         errorCondition_.notify_all();
       }
       return true;
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::parseErrorMessage(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
@@ -149,20 +149,20 @@ namespace spectracom {
         error_ = errorIds::ErrorMsg(); // clear struct
         std::stringstream out;
         out << "Spectracom Error: " << error.errorString << " with ID " << toErrorIdString(error.id);
-        log(out.str(), LogLevel::Error);
+        log_(out.str(), logutils::LogLevel::Error);
         if (error.id != errorIds::MsgIds::NoError) {
           throw SpectracomErrorException(error.errorString);
         }
       } else {
         std::stringstream connectionError;
         connectionError << "No response to queryError() received before timeout.";
-        log(connectionError.str(), LogLevel::Error);
+        log_(connectionError.str(), logutils::LogLevel::Error);
         return;
       }
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::queryError(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return;
     }
 
@@ -186,7 +186,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::query(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
     }
     // Response not received before timeout, check for device error
     queryError();
@@ -201,13 +201,13 @@ namespace spectracom {
       std::string responseStr;
       if (query(querystr, responseStr)) {
         // TODO
-        log(responseStr, LogLevel::Debug);
+        log_(responseStr, logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryIdentification(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -223,7 +223,7 @@ namespace spectracom {
       } else if (responseStr == "1") {
         testResult  = SelfTest::ErrorInReferenceClock;
       } else {
-        log("Invalid response to querySelfTest", LogLevel::Error);
+        log_("Invalid response to querySelfTest", logutils::LogLevel::Error);
         return false;
       }
       return true;
@@ -240,13 +240,13 @@ namespace spectracom {
         power = std::stod(responseStr, &sz);
         std::stringstream out;
         out << "Power = " << power << " dBm";
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryTransmitPower(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -260,13 +260,13 @@ namespace spectracom {
         pps = (PpsFrequency)std::stoul(responseStr, &sz);
         std::stringstream out;
         out << "PPS Frequency = " << (uint16_t)pps;
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryPpsOutput(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -281,13 +281,13 @@ namespace spectracom {
         attenuation = std::stod(responseStr, &sz);
         std::stringstream out;
         out << "External attenuation = " << attenuation << " dB";
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryExternalAttenuation(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -302,13 +302,13 @@ namespace spectracom {
         cno = std::stod(responseStr, &sz);
         std::stringstream out;
         out << "Carrier to Noise = " << cno << " dBHz";
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryCarrierToNoise(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -324,13 +324,13 @@ namespace spectracom {
         state = toSignalGeneratorStateResponseEnum(responseStr);
         std::stringstream out;
         out << "Signal Generator state = " << responseStr;
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::querySignalGenerator(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -342,13 +342,13 @@ namespace spectracom {
       if(query(querystr, scenario)) {
         std::stringstream out;
         out << "Current loaded scenario = " << scenario;
-        log(out.str(), LogLevel::Debug);
+        log_(out.str(), logutils::LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
       std::stringstream error;
       error << "Error in Spectracom::queryLoadedScenario(): " << e.what();
-      log(error.str(), LogLevel::Error);
+      log_(error.str(), logutils::LogLevel::Error);
     }
     return false;
   }
@@ -371,7 +371,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::command(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
     return true;
@@ -394,7 +394,7 @@ namespace spectracom {
   
   bool Spectracom::commandTransmitPower(double &power) {
     if ((power < -160) || (power > -123.2)) {
-      log("In Spectracom::commandTransmitPower() : Power must be within -160 to -123.2 dBm.", LogLevel::Error);
+      log_("In Spectracom::commandTransmitPower() : Power must be within -160 to -123.2 dBm.", logutils::LogLevel::Error);
       return false;
     }
     try {
@@ -405,7 +405,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandTransmitPower(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
@@ -419,15 +419,15 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandPpsOutput(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
   
   bool Spectracom::commandExternalAttenuation(double &attenuation) {
     if ((attenuation < 0) || (attenuation > 30)) {
-      log("In Spectracom::commandExternalAttenuation() : Power must be within 0 to 30 dB.",
-          LogLevel::Error);
+      log_("In Spectracom::commandExternalAttenuation() : Power must be within 0 to 30 dB.",
+          logutils::LogLevel::Error);
       return false;
     }
     try {
@@ -438,15 +438,15 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandExternalAttenuation(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
   
   bool Spectracom::commandCarrierToNoise(double &cno) {
     if ((cno < 0) || (cno > 56)) {
-      log("In Spectracom::commandCarrierToNoise() : Power must be within 0 to 56 dB.",
-          LogLevel::Error);
+      log_("In Spectracom::commandCarrierToNoise() : Power must be within 0 to 56 dB.",
+          logutils::LogLevel::Error);
       return false;
     }
     try {
@@ -457,7 +457,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandCarrierToNoise(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
@@ -472,7 +472,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandSignalGenerator(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }
@@ -486,7 +486,7 @@ namespace spectracom {
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::commandLoadScenario(): " << e.what();
-      log(output.str(), LogLevel::Error);
+      log_(output.str(), logutils::LogLevel::Error);
       return false;
     }
   }

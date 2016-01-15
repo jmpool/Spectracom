@@ -18,15 +18,9 @@
 
 namespace spectracom {
 
-EthernetConnection::EthernetConnection(int bufferSize)
-    : isConnected_(false), running_(false)
-  {
-    incomingBufferSize_ = bufferSize;
-  }
-
 bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
 
-  log("Establishing network connection.", LogLevel::Info);
+  log_("Establishing network connection.", logutils::LogLevel::Info);
   
   setRemoteIp(remoteIp);
   setRemotePort(remotePort);
@@ -35,7 +29,7 @@ bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
   try {
     std::stringstream Out;
     Out << "Connected to " << remoteIp_ << ":" << remotePort_;
-    log(Out.str(), LogLevel::Info);
+    log_(Out.str(), logutils::LogLevel::Info);
 
     socket_.connect(remoteIp_, remotePort_);
     
@@ -44,7 +38,7 @@ bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
     std::stringstream output;
     output << "Error connecting to " << remoteIp << " : " << remotePort_
            << ":" << e.what();
-    log(output.str(), LogLevel::Error);
+    log_(output.str(), logutils::LogLevel::Error);
     return false;
   }
   
@@ -76,7 +70,7 @@ bool EthernetConnection::send(uint8_t *data, size_t length) {
     std::stringstream output_err;
     output_err << "EthernetConnection: Error sending data: "
                << e.what();
-    log(output_err.str(), LogLevel::Error);
+    log_(output_err.str(), logutils::LogLevel::Error);
     return false;
   }
 
@@ -97,7 +91,7 @@ void EthernetConnection::listenToSocket() {
       std::stringstream output_err;
       output_err << "EthernetConnection: Error receiving data: "
                  << e.what();
-      log(output_err.str(), LogLevel::Error);
+      log_(output_err.str(), logutils::LogLevel::Error);
       break;
     }
     if (bytesReceived > 0)  {
@@ -105,7 +99,7 @@ void EthernetConnection::listenToSocket() {
     }
   }
   disconnect();
-  log("Multicast listening thread exiting.", LogLevel::Info);
+  log_("Multicast listening thread exiting.", logutils::LogLevel::Info);
 }
 
 
