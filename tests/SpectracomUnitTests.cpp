@@ -53,7 +53,7 @@ TEST(QueryIdsTest, MsgIdStringArraySizeTest) {
 
 TEST(QueryIdsTest, EnumStringConversionsTest) {
   try {
-    for (size_t i=0; i < queryIds::totalIds; ++i) {
+    for (uint8_t i=0; i < queryIds::totalIds; ++i) {
       EXPECT_EQ(queryIds::msgIdStringArray.at(i), device_.toQueryIdString((queryIds::MsgIds)i));
       
       EXPECT_EQ((queryIds::MsgIds)i, device_.toQueryIdEnum(queryIds::msgIdStringArray.at(i)));
@@ -75,7 +75,7 @@ TEST(ErrorIdsTest, EnumStringConversionsTest) {
   try {
     for (size_t i=0; i < errorIds::totalIds; ++i) {
       EXPECT_EQ(errorIds::msgIdStringArray.at(i), device_.toErrorIdString((errorIds::MsgIds)i));
-      
+
       EXPECT_EQ((errorIds::MsgIds)i, device_.toErrorEnum(errorIds::msgIdStringArray.at(i)));
     }
   } catch(std::exception &e) {

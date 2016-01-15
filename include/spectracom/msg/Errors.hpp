@@ -32,10 +32,10 @@ namespace spectracom {
   //
   namespace errorIds {
     // \brief   Number of values in MsgIdEnum and in msgIdStringArray
-    const size_t totalIds = 39;
+    const size_t totalIds = 38;
   
     // \brief   Enum of all valid Spectracom error message IDs
-    enum class MsgIds : size_t {
+    enum class MsgIds {
       NoError,
       GenericCommandError,
       SyntaxError,
@@ -61,8 +61,7 @@ namespace spectracom {
       RSGCommandUnderflow,
       ScenarioExecutionFailed,
       MissingScenario,
-      SettingsConflict1,
-      SettingsConflict2,
+      SettingsConflict,
       DataOutOfRange,
       IllegalCoordinateOrDate,
       OutOfMemory,
@@ -115,7 +114,6 @@ namespace spectracom {
         "200",
         "220",
         "221",
-        "221",
         "222",
         "224",
         "225",
@@ -159,7 +157,6 @@ namespace spectracom {
   // 200    Scenario execution failed to start.
   // 220    Scenario/signal generator started without a scenario.
   // 221    Indicates that a legal program data element was parsed but could not be executed due to the current counter state (see IEEE-488.2, 6.4.5.3 and 11.5.1.1.5.)
-  // 221    See above.
   // 222    Indicates data values are out of range or input data such as Navigation data files have incompatible ranges of validity.
   // 224    Scenario configuration has illegal coordinates or date.
   // 225    Command processing was interrupted because of the lack of memory.
@@ -201,7 +198,6 @@ namespace spectracom {
       "200,\"Execution error\"",
       "220,\"Parameter error\"",
       "221,\"Settings conflict\"",
-      "221,\"Settings conflict; invalid combination of channel and function\"",
       "222,\"Data out of range\"",
       "224,\"Illegal parameter value\"",
       "225,\"Out of memory\"",

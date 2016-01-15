@@ -33,7 +33,7 @@ namespace spectracom {
   namespace queryIds {
     
     // \brief   Number of values in MsgIdEnum and in msgIdStringArray
-    const size_t totalIds = 75;
+    const size_t totalIds = 74;
     
     // \brief   Char on end of MsgId to indicate it's a query
     const char queryIndicator = '?';
@@ -84,7 +84,6 @@ namespace spectracom {
       Source_Scenario_KeepAltitude,
       Source_Scenario_Position,
       Source_Scenario_Ecef_Position,
-      Source_Scenario_StartTime,
       Source_Scenario_RtcmMessages,
       Source_Scenario_RtcmConfig,
       Source_Scenario_DuplicateSv,
@@ -165,7 +164,6 @@ namespace spectracom {
         "SOURCE:SCENARIO:KEEPALTITUDE",
         "SOURCE:SCENARIO:POSITION",
         "SOURCE:SCENARIO:ECEFPOSITION",
-        "SOURCE:SCENARIO:DATETIME",
         "SOURCE:SCENARIO:RTCM",
         "SOURCE:SCENARIO:RTCMCFG",
         "SOURCE:SCENARIO:DUPLICATE",
