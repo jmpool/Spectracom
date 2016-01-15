@@ -185,25 +185,77 @@ namespace spectracom {
     bool commandLoadScenario(std::string &scenario);
 
 
+    // ------------------------------------------------------------------------
+    // Conversion Methods
     
+    /// \brief  Convert query Id enum to corresponding string
+    ///
+    /// \param  inputEnum   query message id to get string of
+    ///
+    /// \return   String query msg id
     std::string toQueryIdString(queryIds::MsgIds inputEnum);
     
+    /// \brief  Convert query Id string to corresponding enum
+    ///
+    /// \param  inputString   query id string to get enum of
+    ///
+    /// \return   query msg id
     queryIds::MsgIds toQueryIdEnum(std::string inputString);
     
+    /// \brief  Convert error Id enum to full message string
+    ///
+    /// \param  msgId   error message id to get string of
+    ///
+    /// \return   Full error message string
     std::string toFullErrorString(errorIds::MsgIds msgId);
-    
+ 
+    /// \brief  Convert error Id enum to id string
+    ///
+    /// \param  inputEnum   error message id to get string of
+    ///
+    /// \return   error message id string
     std::string toErrorIdString(errorIds::MsgIds inputEnum);
     
+    /// \brief  Convert error Id string to corresponding enum
+    ///
+    /// \param  inputString   error id string to get enum of
+    ///
+    /// \return   error msg id enum
     errorIds::MsgIds toErrorEnum(std::string inputString);
-    
+  
+    /// \brief  Convert options Id enum to id string
+    ///
+    /// \param  inputEnum   options message id to get string of
+    ///
+    /// \return   options message id string
     std::string toOptionString(deviceOptions::Enum inputEnum);
     
+    /// \brief  Convert option Id string to corresponding enum
+    ///
+    /// \param  inputString   option id string to get enum of
+    ///
+    /// \return   option msg id enum
     deviceOptions::Enum toOptionEnum(std::string inputString);
     
+    /// \brief  Convert command Id enum to id string
+    ///
+    /// \param  inputEnum   command message id to get string of
+    ///
+    /// \return   command message id string
     std::string toCommandString(commandIds::MsgIds inputEnum);
     
+    /// \brief  Convert command Id string to corresponding enum
+    ///
+    /// \param  inputString   command id string to get enum of
+    ///
+    /// \return   command msg id enum
     commandIds::MsgIds toCommandEnum(std::string inputString);
-    
+
+    /// \brief  Convert signalGeneratorStateResponse Id string to enum
+    ///
+    /// \param  inputString   signalGeneratorStateResponse id string to get enum of
+    ///
+    /// \return   signalGeneratorStateResponse msg id enum
     signalGeneratorStateResponse::Enum
     toSignalGeneratorStateResponseEnum(std::string inputString);
     
