@@ -67,6 +67,8 @@ public:
 
   bool isConnected(){return isConnected_;};
   
+  void disconnect();
+  
   void setRemoteIp(std::string ip){remoteIp_ = ip;};
   void setRemotePort(uint16_t port){remotePort_ = port;}; 
 
@@ -100,11 +102,12 @@ protected:
   // TCP Socket object from PracticalSocket
   TCPSocket socket_;
   
-    // True if the socket is connected
+  // True if the socket is connected
   bool isConnected_;
-
   // True if the listening thread is running.
   bool running_;
+  // Protects isConnected_ and running_
+  std::mutex connectionMutex_;
 
   // Incoming buffer size (Max message size)
   int incomingBufferSize_;

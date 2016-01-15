@@ -3,7 +3,7 @@
 namespace spectracom {
   
   bool Spectracom::connect(std::string remoteIp, uint16_t remotePort) {
-    
+    std::stringstream out;
     // Connect boost signal
     connection_.receivedMessage.connect(boost::bind(&Spectracom::parseIncomingData, this, _1, _2));
     
@@ -12,53 +12,58 @@ namespace spectracom {
     
     // Create TCP connection
     if (connection_.connect(remoteIp, remotePort)) {
-      std::stringstream out;
       out << "Connected to device at " << remoteIp << " : " << remotePort;
       log(out.str(), LogLevel::Info);
       return true;
     }
+    out << "Failed to connect to device at " << remoteIp << " : " << remotePort;
+    log(out.str(), LogLevel::Error);
     return false;
   }
   
-//  bool Spectracom::reConnect() {
-//    
-//    
-//    
-//  }
-//  
-//  bool Spectracom::pingDevice() {
-//    
-//  }
+  bool Spectracom::reConnect(size_t max_attempts) {
+    static size_t attempts = 0;
+    if (attempts >= max_attempts) { // return false if max attempts is reached
+      return false;
+    }
+    attempts++;
+    
+    log("Attempting to reconnect to device.",LogLevel::Info);
+    connection_.receivedMessage.disconnect_all_slots();
+    connection_.disconnect();
+    
+    if (!connect(remoteIp_, remotePort_)) {
+      reConnect(max_attempts);
+    }
+    return true; // return true if successfully connected
+  }
   
-  bool Spectracom::send(std::string data) {
+  void Spectracom::send(std::string data) {
     std::stringstream output;
     
     if (isConnected()) {
       if (connection_.send(data)) {
         output << "In Spectracom::send(): Sent message " << data;
         log(output.str(), LogLevel::Debug);
-        return true;
+        return;
       }
     }
-      output << "In Spectracom::send(): Faild to send message " << data;
+      output  << "In Spectracom::send(): Faild to send message " << data;
       log(output.str(), LogLevel::Error);
     
-//   if(reConnect()) {
-//    }
+    if(reConnect()) { // resend data if successfully reconnected
+      send(data);
+    }
     
     // Throw exception if connection unavailable
-    throw(connectionException_);
+    throw ConnectionException();
   }
-  
-//  bool Spectracom::send(uint8_t *data, const size_t length) {
-//    return connection_.send(data, length);
-//  }
   
   void Spectracom::parseIncomingData(uint8_t *message, size_t length) {
     try {
       
       if (*message == '\n') {
-        log("Got only endline char.", LogLevel::Debug);
+//        log("Got only endline char.", LogLevel::Debug);
         return;
       }
       
@@ -92,13 +97,8 @@ namespace spectracom {
                                            errorIds::msgStringArray.end(),
                                            message);
       
-      log("parseErrorMessage() : ", LogLevel::Debug);
-      log(message, LogLevel::Debug);
-//      log("errorMsgStringArray begin", LogLevel::Debug);
-//      log(*errorMsgStringArray.begin(), LogLevel::Debug);
-//      log("index", LogLevel::Debug);
-//      log(*index, LogLevel::Debug);
-      
+//      log("parseErrorMessage() : ", LogLevel::Debug);
+//      log(message, LogLevel::Debug);
       
       // If no message found return
       if (*index == *errorIds::msgStringArray.end()) {
@@ -110,13 +110,12 @@ namespace spectracom {
       { // lock scope
         std::unique_lock<std::mutex> lock(queryResponseMutex_);
         error_.errorString = message;
-        error_.id = errorIds::toEnum(message.substr(message.find(commaDelimiter)));
+        error_.id = toErrorEnum(message.substr(0,message.find(commaDelimiter)));
         
-        std::stringstream debug1;
-        
-        debug1  << "Parsed ID = " << message.substr(0,message.find(commaDelimiter))
-                << std::endl << "Parsed string = " << error_.errorString;
-        log(debug1.str(), LogLevel::Debug);
+//        std::stringstream debug1;
+//        debug1  << "Parsed ID = " << message.substr(0,message.find(commaDelimiter))
+//                << std::endl << "Parsed string = " << error_.errorString;
+//        log(debug1.str(), LogLevel::Debug);
         errorCondition_.notify_all();
       }
       return true;
@@ -132,55 +131,50 @@ namespace spectracom {
   // -------------------------------------------------
   // Queries
   
-  bool Spectracom::queryError(errorIds::MsgIds &errorResponse) {
+  void Spectracom::queryError() {
     errorIds::ErrorMsg error;
-    try {
-      { // lock scope
-        std::unique_lock<std::mutex> lock(errorMutex_);
-        
-        // if not able to send return false
-        if(!send(toString(queryIds::MsgIds::System_Error)
-                 + queryIds::queryIndicator
-                 + '\n')) {
-          return false;
-        }
-        
-        // If response is received
-        if (errorCondition_.wait_for(lock, std::chrono::seconds((int)RESPONSE_TIMEOUT))
-            == std::cv_status::no_timeout)
-        {
-          error = error_;
-          error_ = errorIds::ErrorMsg(); // clear struct data
-          std::stringstream out;
-          out << "Spectracom Error: " << error.errorString;
-          log(out.str(), LogLevel::Error);
-          return true;
-        }
-      } // end lock scope
+    
+    // Send query message
+    send(toQueryIdString(queryIds::MsgIds::System_Error) + queryIds::queryIndicator
+         + '\n');
+    
+    try { // Process response
+      std::unique_lock<std::mutex> lock(errorMutex_);
       
-      std::stringstream connectionError;
-      connectionError << "No response to queryError() received before timeout.";
-      log(connectionError.str(), LogLevel::Error);
-      
+      // If response is received
+      if (errorCondition_.wait_for(lock, std::chrono::seconds((int)RESPONSE_TIMEOUT))
+          == std::cv_status::no_timeout)
+      {
+        error = error_;
+        error_ = errorIds::ErrorMsg(); // clear struct
+        std::stringstream out;
+        out << "Spectracom Error: " << error.errorString << " with ID " << toErrorIdString(error.id);
+        log(out.str(), LogLevel::Error);
+        if (error.id != errorIds::MsgIds::NoError) {
+          throw SpectracomErrorException(error.errorString);
+        }
+      } else {
+        std::stringstream connectionError;
+        connectionError << "No response to queryError() received before timeout.";
+        log(connectionError.str(), LogLevel::Error);
+        return;
+      }
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::queryError(): " << e.what();
       log(output.str(), LogLevel::Error);
+      return;
     }
-    return false;
+
   }
   
   
   bool Spectracom::query(std::string &queryStr, std::string &responseStr) {
     // send query and wait for response
+    send(queryStr + queryIds::queryIndicator + endlineIndicator);
     try {
-      { // lock scope
         std::unique_lock<std::mutex> lock(queryResponseMutex_);
-        
-        if(!send(queryStr + queryIds::queryIndicator + endlineIndicator)) { // if not able to send query return false
-          return false;
-        }
-      
+
         // If query response received
         if (queryResponseCondition_.wait_for(lock, std::chrono::seconds((int)RESPONSE_TIMEOUT))
             == std::cv_status::no_timeout)
@@ -189,28 +183,25 @@ namespace spectracom {
           queryResponse_.clear();
           return true;
         }
-      }
-      
-      // Response not received before timeout, check for device error
-      errorIds::MsgIds errorThrown;
-      queryError(errorThrown);
-      
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::query(): " << e.what();
       log(output.str(), LogLevel::Error);
     }
+    // Response not received before timeout, check for device error
+    queryError();
     return false;
   }
   
   bool Spectracom::queryIdentification() {
     try {
       
-      std::string querystr =  toString(queryIds::MsgIds::Common_Identification);
+      std::string querystr =  toQueryIdString(queryIds::MsgIds::Common_Identification);
 
       std::string responseStr;
       if (query(querystr, responseStr)) {
         // TODO
+        log(responseStr, LogLevel::Debug);
         return true;
       }
     } catch (std::exception &e) {
@@ -222,7 +213,7 @@ namespace spectracom {
   }
   
   bool Spectracom::querySelfTest(SelfTest &testResult) {
-    std::string querystr =  toString(queryIds::MsgIds::Common_Identification);
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::Common_Identification);
     
     std::string responseStr;
     
@@ -241,7 +232,7 @@ namespace spectracom {
   }
   
   bool Spectracom::queryTransmitPower(double &power) {
-    std::string querystr =  toString(queryIds::MsgIds::Source_TransmitPower);
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_TransmitPower);
     std::string responseStr;
     try {
       if(query(querystr, responseStr)) {
@@ -261,7 +252,7 @@ namespace spectracom {
   }
   
   bool Spectracom::queryPpsOutput(PpsFrequency &pps) {
-    std::string querystr =  toString(queryIds::MsgIds::Source_PpsOutput);
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_PpsOutput);
     std::string responseStr;
     try {
       if(query(querystr, responseStr)) {
@@ -281,7 +272,7 @@ namespace spectracom {
   }
   
   bool Spectracom::queryExternalAttenuation(double &attenuation) {
-    std::string querystr =  toString(queryIds::MsgIds::
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_ExternalAttenuation);
     std::string responseStr;
     try {
@@ -302,7 +293,7 @@ namespace spectracom {
   }
   
   bool Spectracom::queryCarrierToNoise(double &cno) {
-    std::string querystr =  toString(queryIds::MsgIds::
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_Noise_Cno);
     std::string responseStr;
     try {
@@ -322,15 +313,15 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::querySignalGenerator(signalGeneratorStateResponses::Enum
+  bool Spectracom::querySignalGenerator(signalGeneratorStateResponse::Enum
                                         &state) {
     
-    std::string querystr =  toString(queryIds::MsgIds::
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_Channel_Control);
     std::string responseStr;
     try {
       if(query(querystr, responseStr)) {
-        state = signalGeneratorStateResponses::toEnum(responseStr);
+        state = toSignalGeneratorStateResponseEnum(responseStr);
         std::stringstream out;
         out << "Signal Generator state = " << responseStr;
         log(out.str(), LogLevel::Debug);
@@ -346,7 +337,7 @@ namespace spectracom {
   
   bool Spectracom::queryLoadedScenario(std::string &scenario) {
     
-    std::string querystr =  toString(queryIds::MsgIds::Source_Scenario_Load);
+    std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_Scenario_Load);
     try {
       if(query(querystr, scenario)) {
         std::stringstream out;
@@ -372,49 +363,32 @@ namespace spectracom {
   bool Spectracom::command(std::string &str) {
     // send command and check that no error occured
     try {
-
-      if(!send(str + endlineIndicator)) { // if not able to send command
-        return false;
-      }
+      send(str + endlineIndicator);
       
       // Check that command was successful
-      errorIds::MsgIds errorThrown;
-      queryError(errorThrown);
+      queryError();
       
-      // If unsuccessfull
-      std::stringstream connectionError;
-      if (errorThrown != errorIds::MsgIds::NoError) { // No error thrown
-        connectionError << "In Spectracom::command(): Command failed.";
-        log(connectionError.str(), LogLevel::Error);
-        return false;
-      }
-      
-      // If successfull
-      connectionError << "Spectracom command " << toString(errorThrown)
-                      << " sent successfully.";
-      log(connectionError.str(), LogLevel::Error);
-      return true;
-
     } catch (std::exception &e) {
       std::stringstream output;
       output << "Error in Spectracom::command(): " << e.what();
       log(output.str(), LogLevel::Error);
       return false;
     }
+    return true;
   }
   
   bool Spectracom::commandClearStatus() {
-    std::string cmdStr = toString(commandIds::MsgIds::Common_ClearStatus);
+    std::string cmdStr = toCommandString(commandIds::MsgIds::Common_ClearStatus);
     return command(cmdStr);
   }
   
   bool Spectracom::commandResetDevice() {
-    std::string cmdStr = toString(commandIds::MsgIds::Common_Reset);
+    std::string cmdStr = toCommandString(commandIds::MsgIds::Common_Reset);
     return command(cmdStr);
   }
   
   bool Spectracom::commandWaitToContinue() {
-    std::string cmdStr = toString(commandIds::MsgIds::Common_WaitToContinue);
+    std::string cmdStr = toCommandString(commandIds::MsgIds::Common_WaitToContinue);
     return command(cmdStr);
   }
   
@@ -425,7 +399,7 @@ namespace spectracom {
     }
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_TransmitPower)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_TransmitPower)
                 + whitespaceDelimiter + std::to_string(power);    
       return command(cmdStr);
     } catch (std::exception &e) {
@@ -439,7 +413,7 @@ namespace spectracom {
   bool Spectracom::commandPpsOutput(PpsFrequency &pps) {
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_PpsOutput)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_PpsOutput)
                 + whitespaceDelimiter + std::to_string((uint16_t)pps);
       return command(cmdStr);
     } catch (std::exception &e) {
@@ -458,7 +432,7 @@ namespace spectracom {
     }
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_ExternalAttenuation)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_ExternalAttenuation)
                 + whitespaceDelimiter + std::to_string(attenuation);
       return command(cmdStr);
     } catch (std::exception &e) {
@@ -477,7 +451,7 @@ namespace spectracom {
     }
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_Noise_Cno)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Noise_Cno)
                 + whitespaceDelimiter + std::to_string(cno);
       return command(cmdStr);
     } catch (std::exception &e) {
@@ -491,7 +465,7 @@ namespace spectracom {
   bool Spectracom::commandSignalGenerator(signalGeneratorStateCommands::Enum &state) {
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_Channel_Control)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Channel_Control)
                 + whitespaceDelimiter
                 + signalGeneratorStateCommands::stringArray[(size_t)state];
       return command(cmdStr);
@@ -506,7 +480,7 @@ namespace spectracom {
   bool Spectracom::commandLoadScenario(std::string &scenario) {
     try {
       std::string cmdStr;
-      cmdStr =  toString(commandIds::MsgIds::Source_Scenario_Load)
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Load)
       + whitespaceDelimiter + scenario;
       return command(cmdStr);
     } catch (std::exception &e) {
@@ -518,13 +492,89 @@ namespace spectracom {
   }
   
   
+  // -------------------------------------------------
+  // Conversions
   
+  std::string Spectracom::toQueryIdString(queryIds::MsgIds inputEnum) {
+    return queryIds::msgIdStringArray.at((std::size_t)inputEnum);
+  }
   
+  queryIds::MsgIds Spectracom::toQueryIdEnum(std::string inputString) {
+    const std::string *result = std::find(queryIds::msgIdStringArray.begin(),
+                                          queryIds::msgIdStringArray.end(),
+                                          inputString);
+    //      if (result == stringArray.end()) {
+    //        return ;
+    //      } // TODO: Add exception throw for if string not valid
+    
+    return (queryIds::MsgIds)(std::distance(queryIds::msgIdStringArray.begin(),
+                                            result));
+  }
   
+  std::string Spectracom::toFullErrorString(errorIds::MsgIds msgId) {
+    return errorIds::msgStringArray.at((std::size_t)msgId);
+  }
   
+  std::string Spectracom::toErrorIdString(errorIds::MsgIds inputEnum) {
+    return errorIds::msgIdStringArray.at((std::size_t)inputEnum);
+  }
   
+  errorIds::MsgIds Spectracom::toErrorEnum(std::string inputString) {
+    const std::string *result = std::find(errorIds::msgIdStringArray.begin(),
+                                          errorIds::msgIdStringArray.end(),
+                                          inputString);
+    if (result == errorIds::msgIdStringArray.end()) {
+      return errorIds::MsgIds::UndefinedError;
+    } // TODO: Add exception throw for if string not valid
+    
+    return (errorIds::MsgIds)(std::distance(errorIds::msgIdStringArray.begin(),
+                                            result));
+  }
   
+  std::string Spectracom::toOptionString(deviceOptions::Enum inputEnum) {
+    return deviceOptions::stringArray[(std::size_t)inputEnum];
+  }
   
+  deviceOptions::Enum Spectracom::toOptionEnum(std::string inputString) {
+    const std::string *result = std::find(deviceOptions::stringArray.begin(),
+                                          deviceOptions::stringArray.end(),
+                                          inputString);
+    //      if (result == stringArray.end()) {
+    //        return ;
+    //      } // TODO: Add exception throw for if string not valid
+    
+    return (deviceOptions::Enum)( std::distance(
+                                                deviceOptions::stringArray.begin(),
+                                                result));
+  }
   
+  std::string Spectracom::toCommandString(commandIds::MsgIds inputEnum) {
+    return commandIds::msgIdStringArray[(std::size_t)inputEnum];
+  }
+  
+  commandIds::MsgIds Spectracom::toCommandEnum(std::string inputString) {
+    const std::string *result = std::find(commandIds::msgIdStringArray.begin(),
+                                          commandIds::msgIdStringArray.end(),
+                                          inputString);
+    //      if (result == stringArray.end()) {
+    //        return ;
+    //      } // TODO: Add exception throw for if string not valid
+    
+    return (commandIds::MsgIds)(std::distance(commandIds::msgIdStringArray.begin(),
+                                              result));
+  }
+  
+  signalGeneratorStateResponse::Enum
+  Spectracom::toSignalGeneratorStateResponseEnum(std::string inputString) {
+    const std::string *result = std::find(signalGeneratorStateResponse::stringArray.begin(),
+                                          signalGeneratorStateResponse::stringArray.end(),
+                                          inputString);
+    //      if (result == stringArray.end()) {
+    //        return ;
+    //      } // TODO: Add exception throw for if string not valid
+    
+    return (signalGeneratorStateResponse::Enum)(std::distance(signalGeneratorStateResponse::stringArray.begin(),
+                                                              result));
+  }
   
 } // end namespace spectracom

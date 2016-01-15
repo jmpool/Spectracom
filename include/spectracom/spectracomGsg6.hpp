@@ -10,9 +10,7 @@
 ///===---------------------------------------------------------------------===//
 ///
 /// \file
-/// \brief
-/// \details
-///
+/// \brief    Interface to the Spectracom GSG6 GNSS Simulator
 /// \author   Chris Collins <chris.collins@is4s.com>
 /// \date     January 2016
 ///
@@ -21,16 +19,13 @@
 #ifndef SPECTRACOM_GSG6_HPP
 #define SPECTRACOM_GSG6_HPP
 
-//#include <string>
 #include <iostream>
 #include <thread>
 
-//#include <functional>
-//#include <boost/signals2.hpp>
-
 #include "spectracom/EthernetConnection.hpp"
 #include "spectracom/spectracomGsg6Protocol.hpp"
-#include "spectracom/ConnectionException.hpp"
+#include "spectracom/exceptions/ConnectionException.hpp"
+#include "spectracom/exceptions/SpectracomErrorException.hpp"
 
 namespace spectracom {
 
@@ -49,8 +44,6 @@ namespace spectracom {
     ///
     /// /returns  True if successfully connected
     bool connect(std::string remoteIp, uint16_t remotePort);
-
-    bool reConnect();
     
     bool isConnected(){return connection_.isConnected();};
     
@@ -59,9 +52,8 @@ namespace spectracom {
     /// \param  data    Data to send to device
     /// \param  length  Length of data to send
     ///
-    /// \returns  True if successfully sent
-    bool send(std::string data);
-    bool send(uint8_t *data, const size_t length);
+    /// \returns  void
+    void send(std::string data);
 
     /// \brief  Signal generated for log message occurance
     bs2::signal<void(const std::string &, const LogLevel &)> log;
@@ -74,7 +66,7 @@ namespace spectracom {
     /// \param  errorResponse Error MsgId returned from device
     ///
     /// \returns  True if query is successfull
-    bool queryError(errorIds::MsgIds &errorResponse);
+    void queryError();
     
     /// \brief  [*IDN?] Simulator Identification Query
     ///
@@ -123,7 +115,7 @@ namespace spectracom {
     /// \param  state   Current state of signal generator defined in
     ///
     /// \return   True if successfull
-    bool querySignalGenerator(signalGeneratorStateResponses::Enum &state);
+    bool querySignalGenerator(signalGeneratorStateResponse::Enum &state);
     
     /// \brief  Query current loaded scenario
     ///
@@ -192,8 +184,32 @@ namespace spectracom {
     /// \return   True if successfull
     bool commandLoadScenario(std::string &scenario);
 
+
+    
+    std::string toQueryIdString(queryIds::MsgIds inputEnum);
+    
+    queryIds::MsgIds toQueryIdEnum(std::string inputString);
+    
+    std::string toFullErrorString(errorIds::MsgIds msgId);
+    
+    std::string toErrorIdString(errorIds::MsgIds inputEnum);
+    
+    errorIds::MsgIds toErrorEnum(std::string inputString);
+    
+    std::string toOptionString(deviceOptions::Enum inputEnum);
+    
+    deviceOptions::Enum toOptionEnum(std::string inputString);
+    
+    std::string toCommandString(commandIds::MsgIds inputEnum);
+    
+    commandIds::MsgIds toCommandEnum(std::string inputString);
+    
+    signalGeneratorStateResponse::Enum
+    toSignalGeneratorStateResponseEnum(std::string inputString);
     
   private:
+    
+    bool reConnect(size_t max_attempts=1);
     
     /// \brief  Send query and wait for response
     ///
@@ -241,10 +257,6 @@ namespace spectracom {
     std::string remoteIp_;
     uint16_t remotePort_;
     
-    
-    // -------------------------------------------------
-    // Exceptions
-    ConnectionException connectionException_;
     
   }; // end class Spectracom
 } // end namespace spectracom

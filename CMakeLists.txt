@@ -64,7 +64,8 @@ set(SPECTRACOM_HEADERS  include/spectracom/spectracomGsg6.hpp
                         include/spectracom/msg/Errors.hpp
                         include/spectracom/PracticalSocket.h
                         include/spectracom/EthernetConnection.hpp
-                        include/spectracom/ConnectionException.hpp)
+                        include/spectracom/exceptions/ConnectionException.hpp
+                        include/spectracom/exceptions/SpectracomErrorException.hpp)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
@@ -109,3 +110,24 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 set(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules)
 install(FILES Findspectracom.cmake DESTINATION ${CMAKE_MODULE_PATH})
+
+#############
+## Tests ##
+#############
+# Add gtest based cpp test target and link libraries
+if(BUILD_WITH_CATKIN)
+  catkin_add_gtest(spectracom-test tests/SpectracomUnitTests.cpp)
+  if(TARGET spectracom-test)
+    target_link_libraries(spectracom-test spectracom)
+  endif()
+else(BUILD_WITH_CATKIN)
+
+  find_package(GTest REQUIRED)
+  include_directories(${GTEST_INCLUDE_DIRS})
+   
+  # Link runTests with what we want to test and the GTest and pthread library
+  add_executable(spectracom-test tests/SpectracomUnitTests.cpp)
+  target_link_libraries(spectracom-test ${GTEST_LIBRARIES} pthread spectracom)
+
+endif(BUILD_WITH_CATKIN)
+

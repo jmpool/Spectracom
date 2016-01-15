@@ -1,10 +1,20 @@
-//
-//  Queries.hpp
-//  spectracom
-//
-//  Created by collinsc on 1/4/16.
-//
-//
+///-----------------------------------------------------------------------------
+///                                UNCLASSIFIED
+///-----------------------------------------------------------------------------
+///==----------------------- spectracomGsg6/Queries.hpp --------------------==//
+///
+/// Copyright (C) Integrated Solutions for Systems, Inc - All Rights Reserved
+/// Unauthorized copying of this file, via any medium is strictly prohibited.
+/// Proprietary and confidential.
+///
+///===---------------------------------------------------------------------===//
+///
+/// \file
+/// \brief    Spectracom Query message IDs
+/// \author   Chris Collins <chris.collins@is4s.com>
+/// \date     January 2016
+///
+///===---------------------------------------------------------------------===//
 
 #ifndef SPECTRACOM_QUERIES_HPP
 #define SPECTRACOM_QUERIES_HPP
@@ -193,22 +203,6 @@ namespace spectracom {
         "SOURCE:SCENARIO:SVPOS"       // [n]
       }
     };
-    
-    static std::string toString(MsgIds inputEnum) {
-      return msgIdStringArray.at((std::size_t)inputEnum);
-    }
-
-    static MsgIds toEnum(std::string inputString) {
-      const std::string *result = std::find(msgIdStringArray.begin(),
-                                            msgIdStringArray.end(),
-                                            inputString);
-      //      if (result == stringArray.end()) {
-      //        return ;
-      //      } // TODO: Add exception throw for if string not valid
-      
-      return (MsgIds)(std::distance(msgIdStringArray.begin(),
-                                    result)-1);
-    }
   }
 }
 #endif // SPECTRACOM_QUERIES_HPP

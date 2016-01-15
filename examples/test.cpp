@@ -4,8 +4,6 @@ void logHandler(std::string msg, LogLevel level) {
   std::cout << msg << "\n";
 }
 
-uint8_t testarray[] = {'a','a','a','a','a'};
-
 // 192.168.10.118 5025
 int main(int argc, char **argv)
 {
@@ -26,12 +24,11 @@ int main(int argc, char **argv)
   if (!device->connect(ip,port)) {return -1;}
 
   // loop forever
-//  spectracom::errorIds::MsgIds errorId;
     double power;
   
   while(1) {
-//      device->queryError(errorId);
-    device->queryTransmitPower(power);
+      device->queryError();
+//    device->queryTransmitPower(power);
     usleep(1000 * 1000); // sleep for 50 ms
 
   }

@@ -47,9 +47,12 @@ bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
     log(output.str(), LogLevel::Error);
     return false;
   }
-
-  isConnected_ = true;
-  running_ = true;
+  
+  { // lock scope
+    std::unique_lock<std::mutex> lock(connectionMutex_);
+    isConnected_ = true;
+    running_ = true;
+  }
   
   // start listening thread
   std::thread listenThread(&EthernetConnection::listenToSocket, this);
@@ -58,6 +61,14 @@ bool EthernetConnection::connect(std::string remoteIp, uint16_t remotePort) {
   return true;
 }
 
+void EthernetConnection::disconnect() {
+  {
+    std::unique_lock<std::mutex> lock(connectionMutex_);
+    running_ = false;
+    isConnected_ = false;
+  }
+}
+  
 bool EthernetConnection::send(uint8_t *data, size_t length) {
   try {
     socket_.send(data, length);
@@ -66,8 +77,6 @@ bool EthernetConnection::send(uint8_t *data, size_t length) {
     output_err << "EthernetConnection: Error sending data: "
                << e.what();
     log(output_err.str(), LogLevel::Error);
-    isConnected_ = false;
-    running_ = false;
     return false;
   }
 
@@ -80,6 +89,7 @@ void EthernetConnection::listenToSocket() {
   size_t bytesReceived;
 
   while (running_) {
+    std::unique_lock<std::mutex> lock(connectionMutex_);
     try {
       // Read data from the socket
       bytesReceived = socket_.recv(buffer, incomingBufferSize_);
@@ -88,15 +98,13 @@ void EthernetConnection::listenToSocket() {
       output_err << "EthernetConnection: Error receiving data: "
                  << e.what();
       log(output_err.str(), LogLevel::Error);
-      isConnected_ = false;
-      running_ = false;
-      return;
+      break;
     }
-
     if (bytesReceived > 0)  {
       receivedMessage(buffer, bytesReceived);
     }
   }
+  disconnect();
   log("Multicast listening thread exiting.", LogLevel::Info);
 }
 

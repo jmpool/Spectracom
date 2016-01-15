@@ -1,10 +1,20 @@
-//
-//  Options.hpp
-//  spectracom
-//
-//  Created by collinsc on 1/4/16.
-//
-//
+///-----------------------------------------------------------------------------
+///                                UNCLASSIFIED
+///-----------------------------------------------------------------------------
+///==----------------------- spectracomGsg6/Options.hpp --------------------==//
+///
+/// Copyright (C) Integrated Solutions for Systems, Inc - All Rights Reserved
+/// Unauthorized copying of this file, via any medium is strictly prohibited.
+/// Proprietary and confidential.
+///
+///===---------------------------------------------------------------------===//
+///
+/// \file
+/// \brief    Spectracom Device Options 
+/// \author   Chris Collins <chris.collins@is4s.com>
+/// \date     January 2016
+///
+///===---------------------------------------------------------------------===//
 
 #include <string>
 #include <array>
@@ -80,23 +90,6 @@ namespace spectracom {
       "IRN"
       }
     };
-    
-    static std::string toString(deviceOptions::Enum inputEnum) {
-      return deviceOptions::stringArray[(std::size_t)inputEnum];
-    }
-    
-    static deviceOptions::Enum toEnum(std::string inputString) {
-      const std::string *result = std::find(deviceOptions::stringArray.begin(),
-                                            deviceOptions::stringArray.end(),
-                                            inputString);
-      //      if (result == stringArray.end()) {
-      //        return ;
-      //      } // TODO: Add exception throw for if string not valid
-      
-      return (deviceOptions::Enum)( std::distance(
-                                    deviceOptions::stringArray.begin(),
-                                    result)-1);
-    }
   }
 }
 #endif // SPECTRACOM_OPTIONS_HPP

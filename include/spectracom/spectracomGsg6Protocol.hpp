@@ -1,22 +1,21 @@
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //                                UNCLASSIFIED
-//-----------------------------------------------------------------------------
-//==---------------- spectracomGsg6/spectracomGsg6Protocol.hpp ------------==//
+//------------------------------------------------------------------------------
+//==---------------- spectracomGsg6/spectracomGsg6Protocol.hpp -------------==//
 // 
 // Copyright (C) Integrated Solutions for Systems, Inc - All Rights Reserved
 // Unauthorized copying of this file, via any medium is strictly prohibited. 
 // Proprietary and confidential. 
 //
-//===---------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 /// 
 /// \file 
-/// \brief    
-/// \details  
-/// 
+/// \brief    This file contains spectracom protocol message structures.
+///
 /// \author   Chris Collins <chris.collins@is4s.com> 
 /// \date     January 2016 
 ///
-//===---------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 
 #ifndef SPECTRACOM_GSG6_PROTOCOL_HPP
 #define SPECTRACOM_GSG6_PROTOCOL_HPP
@@ -124,7 +123,10 @@ namespace spectracom {
     OneThousandeHz = 1000
   };
   
-  namespace signalGeneratorStateResponses {
+  namespace signalGeneratorStateResponse {
+    
+    const size_t totalIds = 5;
+    
     enum class Enum {
       Running,
       Stopped,
@@ -133,7 +135,7 @@ namespace spectracom {
       Armed
     };
     
-    const std::array<std::string, errorIds::totalIds> stringArray {
+    const std::array<std::string, signalGeneratorStateResponse::totalIds> stringArray {
       {
         "START",
         "STOP",
@@ -141,20 +143,7 @@ namespace spectracom {
         "ARMING",
         "ARMED"
       }
-    };
-    
-    static signalGeneratorStateResponses::Enum toEnum(std::string inputString) {
-      const std::string *result = std::find(stringArray.begin(),
-                                            stringArray.end(),
-                                            inputString);
-      //      if (result == stringArray.end()) {
-      //        return ;
-      //      } // TODO: Add exception throw for if string not valid
-      
-      return (signalGeneratorStateResponses::Enum)(std::distance(stringArray.begin(),
-                                                                 result)-1);
-    }
-    
+    };    
   } // end namespace signalGeneratorStateResponses
   
   namespace signalGeneratorStateCommands {
@@ -172,16 +161,9 @@ namespace spectracom {
       }
     };
   } // end namespace signalGeneratorStateCommands
-    
-    
-    
-    
-    
-    
-    
-    
   
-  
-  
-}
+} // end namespace spectracom
 #endif  // SPECTRACOM_GSG6_PROTOCOL_HPP
+//------------------------------------------------------------------------------
+//                                UNCLASSIFIED
+//------------------------------------------------------------------------------

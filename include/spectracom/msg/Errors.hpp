@@ -1,10 +1,20 @@
-//
-//  Errors.hpp
-//  spectracom
-//
-//  Created by collinsc on 1/7/16.
-//
-//
+///-----------------------------------------------------------------------------
+///                                UNCLASSIFIED
+///-----------------------------------------------------------------------------
+///==----------------------- spectracomGsg6/Errors.hpp ---------------------==//
+///
+/// Copyright (C) Integrated Solutions for Systems, Inc - All Rights Reserved
+/// Unauthorized copying of this file, via any medium is strictly prohibited.
+/// Proprietary and confidential.
+///
+///===---------------------------------------------------------------------===//
+///
+/// \file
+/// \brief    Spectracom Error messages
+/// \author   Chris Collins <chris.collins@is4s.com>
+/// \date     January 2016
+///
+///===---------------------------------------------------------------------===//
 
 #ifndef SPECTRACOM_ERRORS_HPP
 #define SPECTRACOM_ERRORS_HPP
@@ -25,7 +35,7 @@ namespace spectracom {
     const size_t totalIds = 39;
   
     // \brief   Enum of all valid Spectracom error message IDs
-    enum class MsgIds {
+    enum class MsgIds : size_t {
       NoError,
       GenericCommandError,
       SyntaxError,
@@ -72,7 +82,7 @@ namespace spectracom {
       std::string errorString;
       
       ErrorMsg()
-      : id(errorIds::MsgIds::UndefinedError),
+      : id(errorIds::MsgIds::NoError),
         errorString(""){}
     };
   
@@ -205,27 +215,7 @@ namespace spectracom {
       "1404,\"File type error\"",
       "none"
     }
-  };
-  
-    static std::string getMessage(errorIds::MsgIds msgId) {
-      return errorIds::msgStringArray[(std::size_t)msgId];
-    }
-  
-    static std::string toString(errorIds::MsgIds inputEnum) {
-      return errorIds::msgIdStringArray[(std::size_t)inputEnum];
-    }
-    
-    static errorIds::MsgIds toEnum(std::string inputString) {
-      const std::string *result = std::find(errorIds::msgIdStringArray.begin(),
-                                            errorIds::msgIdStringArray.end(),
-                                            inputString);
-      //      if (result == stringArray.end()) {
-      //        return ;
-      //      } // TODO: Add exception throw for if string not valid
-      
-      return (errorIds::MsgIds)(std::distance(errorIds::msgIdStringArray.begin(),
-                                              result)-1);
-    }
+    };
   }
 }
 
