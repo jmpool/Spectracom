@@ -123,6 +123,27 @@ namespace spectracom {
     OneThousandeHz = 1000
   };
   
+    namespace scenarioControl {
+      
+      const size_t totalIds = 4;
+      
+      enum class Enum {
+        Start,
+        Stop,
+        Hold,
+        Arm
+      };
+      
+      const std::array<std::string, scenarioControl::totalIds> stringArray {
+        {
+          "START",
+          "STOP",
+          "HOLD",
+          "ARM"
+        }
+      };
+    } // end namespace scenarioControl
+    
   namespace signalGeneratorStateResponse {
     
     const size_t totalIds = 5;

@@ -16,16 +16,14 @@ int main(int argc, char **argv)
 
   // Connect to Receiver
   if (!device->connect(ip,port)) {return -1;}
-
-  // loop forever
-    double power;
   
-  while(1) {
-    device->queryError();
-//    device->queryTransmitPower(power); 
-    usleep(1000 * 1000); // sleep for 50 ms
-
-  }
+  // Pick scenario
+  device->commandLoadScenario("IS4S_ROOF-l1.scen");
+  // Set Parameters
+  device->commandTransmitPower(-130);
+  device->commandCarrierToNoise(50);
+  // Start scenario
+  device->commandStartScenario();
 
   return 0;
 }

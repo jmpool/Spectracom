@@ -127,6 +127,40 @@ namespace spectracom {
     }
   }
   
+  void Spectracom::parseFromFile(std::string filename) {
+    try {
+      // Load the input filename
+      std::ifstream file1(filename, std::ios::binary);
+      
+      if (!file1.is_open())
+      {
+        std::stringstream out;
+        out << "Failed to open file " << filename << " .";
+        log_(out.str(), logutils::LogLevel::Error);
+        return;
+      }
+      
+      // Find file size
+      file1.seekg(0, file1.end);
+      size_t size = file1.tellg();
+      
+      // Put data into buffer
+      char buff[size];
+      
+      file1.seekg(0, file1.beg);
+      file1.read((char*)buff, size);
+
+      // Finished with the file, close it
+      file1.close();
+      
+      parseIncomingData((uint8_t *)buff, sizeof(buff));
+      
+    } catch (std::exception &e) {
+      std::stringstream output;
+      output << "Error in Spectracom::parseFromFile(): " << e.what();
+      log_(output.str(), logutils::LogLevel::Error);
+    }
+  }
   
   // -------------------------------------------------
   // Queries
@@ -212,7 +246,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::querySelfTest(SelfTest &testResult) {
+  bool Spectracom::querySelfTest(SelfTest testResult) {
     std::string querystr =  toQueryIdString(queryIds::MsgIds::Common_Identification);
     
     std::string responseStr;
@@ -231,7 +265,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::queryTransmitPower(double &power) {
+  bool Spectracom::queryTransmitPower(double power) {
     std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_TransmitPower);
     std::string responseStr;
     try {
@@ -251,7 +285,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::queryPpsOutput(PpsFrequency &pps) {
+  bool Spectracom::queryPpsOutput(PpsFrequency pps) {
     std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_PpsOutput);
     std::string responseStr;
     try {
@@ -271,7 +305,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::queryExternalAttenuation(double &attenuation) {
+  bool Spectracom::queryExternalAttenuation(double attenuation) {
     std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_ExternalAttenuation);
     std::string responseStr;
@@ -292,7 +326,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::queryCarrierToNoise(double &cno) {
+  bool Spectracom::queryCarrierToNoise(double cno) {
     std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_Noise_Cno);
     std::string responseStr;
@@ -314,7 +348,7 @@ namespace spectracom {
   }
   
   bool Spectracom::querySignalGenerator(signalGeneratorStateResponse::Enum
-                                        &state) {
+                                        state) {
     
     std::string querystr =  toQueryIdString(queryIds::MsgIds::
                                      Source_Channel_Control);
@@ -335,7 +369,7 @@ namespace spectracom {
     return false;
   }
   
-  bool Spectracom::queryLoadedScenario(std::string &scenario) {
+  bool Spectracom::queryLoadedScenario(std::string scenario) {
     
     std::string querystr =  toQueryIdString(queryIds::MsgIds::Source_Scenario_Load);
     try {
@@ -392,7 +426,7 @@ namespace spectracom {
     return command(cmdStr);
   }
   
-  bool Spectracom::commandTransmitPower(double &power) {
+  bool Spectracom::commandTransmitPower(double power) {
     if ((power < -160) || (power > -123.2)) {
       log_("In Spectracom::commandTransmitPower() : Power must be within -160 to -123.2 dBm.", logutils::LogLevel::Error);
       return false;
@@ -410,7 +444,7 @@ namespace spectracom {
     }
   }
   
-  bool Spectracom::commandPpsOutput(PpsFrequency &pps) {
+  bool Spectracom::commandPpsOutput(PpsFrequency pps) {
     try {
       std::string cmdStr;
       cmdStr =  toCommandString(commandIds::MsgIds::Source_PpsOutput)
@@ -424,7 +458,7 @@ namespace spectracom {
     }
   }
   
-  bool Spectracom::commandExternalAttenuation(double &attenuation) {
+  bool Spectracom::commandExternalAttenuation(double attenuation) {
     if ((attenuation < 0) || (attenuation > 30)) {
       log_("In Spectracom::commandExternalAttenuation() : Power must be within 0 to 30 dB.",
           logutils::LogLevel::Error);
@@ -443,7 +477,7 @@ namespace spectracom {
     }
   }
   
-  bool Spectracom::commandCarrierToNoise(double &cno) {
+  bool Spectracom::commandCarrierToNoise(double cno) {
     if ((cno < 0) || (cno > 56)) {
       log_("In Spectracom::commandCarrierToNoise() : Power must be within 0 to 56 dB.",
           logutils::LogLevel::Error);
@@ -462,7 +496,7 @@ namespace spectracom {
     }
   }
   
-  bool Spectracom::commandSignalGenerator(signalGeneratorStateCommands::Enum &state) {
+  bool Spectracom::commandSignalGenerator(signalGeneratorStateCommands::Enum state) {
     try {
       std::string cmdStr;
       cmdStr =  toCommandString(commandIds::MsgIds::Source_Channel_Control)
@@ -477,7 +511,7 @@ namespace spectracom {
     }
   }
   
-  bool Spectracom::commandLoadScenario(std::string &scenario) {
+  bool Spectracom::commandLoadScenario(std::string scenario) {
     try {
       std::string cmdStr;
       cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Load)
@@ -491,6 +525,65 @@ namespace spectracom {
     }
   }
   
+  bool Spectracom::commandStartScenario() {
+    try {
+      std::string cmdStr;
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Control)
+                + whitespaceDelimiter
+                + toScenarioControlString(scenarioControl::Enum::Start);
+      return command(cmdStr);
+    } catch (std::exception &e) {
+      std::stringstream output;
+      output << "Error in Spectracom::commandStartScenario(): " << e.what();
+      log_(output.str(), logutils::LogLevel::Error);
+      return false;
+    }
+  }
+  
+  bool Spectracom::commandStopScenario() {
+    try {
+      std::string cmdStr;
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Control)
+                + whitespaceDelimiter
+                + toScenarioControlString(scenarioControl::Enum::Stop);
+      return command(cmdStr);
+    } catch (std::exception &e) {
+      std::stringstream output;
+      output << "Error in Spectracom::commandStopScenario(): " << e.what();
+      log_(output.str(), logutils::LogLevel::Error);
+      return false;
+    }
+  }
+  
+  bool Spectracom::commandHoldScenario() {
+    try {
+      std::string cmdStr;
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Control)
+                + whitespaceDelimiter
+                + toScenarioControlString(scenarioControl::Enum::Hold);
+      return command(cmdStr);
+    } catch (std::exception &e) {
+      std::stringstream output;
+      output << "Error in Spectracom::commandHoldScenario(): " << e.what();
+      log_(output.str(), logutils::LogLevel::Error);
+      return false;
+    }
+  }
+  
+  bool Spectracom::commandArmScenario() {
+    try {
+      std::string cmdStr;
+      cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Control)
+                + whitespaceDelimiter
+                + toScenarioControlString(scenarioControl::Enum::Arm);
+      return command(cmdStr);
+    } catch (std::exception &e) {
+      std::stringstream output;
+      output << "Error in Spectracom::commandArmScenario(): " << e.what();
+      log_(output.str(), logutils::LogLevel::Error);
+      return false;
+    }
+  }
   
   // -------------------------------------------------
   // Conversions
@@ -575,6 +668,24 @@ namespace spectracom {
     
     return (signalGeneratorStateResponse::Enum)(std::distance(signalGeneratorStateResponse::stringArray.begin(),
                                                               result));
+  }
+  
+  scenarioControl::Enum
+  Spectracom::toScenarioControlEnum(std::string inputString) {
+    const std::string *result = std::find(scenarioControl::stringArray.begin(),
+                                          scenarioControl::stringArray.end(),
+                                          inputString);
+    //      if (result == stringArray.end()) {
+    //        return ;
+    //      } // TODO: Add exception throw for if string not valid
+    
+    return (scenarioControl::Enum)(std::distance(scenarioControl::stringArray.begin(),
+                                                              result));
+  }
+  
+  std::string
+  Spectracom::toScenarioControlString(scenarioControl::Enum inputEnum) {
+    return scenarioControl::stringArray[(std::size_t)inputEnum];
   }
   
 } // end namespace spectracom

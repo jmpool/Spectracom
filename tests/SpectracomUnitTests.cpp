@@ -103,8 +103,17 @@ TEST(CommandIdsTest, EnumStringConversionsTest) {
   }
 }
 
-
-
+TEST(CommandIdsTest, EnumStringConversionsTest) {
+  try {
+    for (size_t i=0; i < commandIds::totalIds; ++i) {
+      EXPECT_EQ(commandIds::msgIdStringArray.at(i), device_.toCommandString((commandIds::MsgIds)i));
+      
+      EXPECT_EQ((commandIds::MsgIds)i, device_.toCommandEnum(commandIds::msgIdStringArray.at(i)));
+    }
+  } catch(std::exception &e) {
+    ADD_FAILURE() << "Caught exception : " << e.what();
+  }
+}
 
 int main(int argc, char **argv) {
   try {

@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <thread>
+#include <fstream>
 
 #include "spectracom/EthernetConnection.hpp"
 #include "spectracom/spectracomGsg6Protocol.hpp"
@@ -59,7 +60,19 @@ namespace spectracom {
     /// \returns  void
     void send(std::string data);
 
+    /// \brief  Set log_ callback
+    ///
+    /// \param  logCallback   Function to set as log_
+    ///
+    /// \return void
     void setLogCallback(logutils::LogCallback logCallback);
+    
+    /// \brief  Parse messages from file
+    ///
+    /// \param  filename  Name of file to parse
+    ///
+    /// \return void
+    void parseFromFile(std::string filename);
     
     // -------------------------------------------------
     // Queries
@@ -83,49 +96,49 @@ namespace spectracom {
     /// \param  testResult  Response from device
     ///
     /// \returns True if passes, False if fails test
-    bool querySelfTest(SelfTest &testResult);
+    bool querySelfTest(SelfTest testResult);
     
     /// \brief  Query transmit power
     ///
     /// \param  power   Transmit power in dBm [-160 to -123.2]
     ///
     /// \return   True if successfull
-    bool queryTransmitPower(double &power);
+    bool queryTransmitPower(double power);
     
     /// \brief  Query PPS output rate
     ///
     /// \param  pps   Enum of PPS options {1, 10, 100, 1000} PPS
     ///
     /// \return   True if successfull
-    bool queryPpsOutput(PpsFrequency &pps);
+    bool queryPpsOutput(PpsFrequency pps);
     
     /// \brief  Query External attenuation
     ///
     /// \param  attenuation External attenuation on output RF signal [0-30 dB]
     ///
     /// \return   True if successfull
-    bool queryExternalAttenuation(double &attenuation);
+    bool queryExternalAttenuation(double attenuation);
     
     /// \brief  Query Max Carrier to Noise
     ///
     /// \param  cno Max carrier to noise of signals [0.0-56.0 dBHz]
     ///
     /// \return   True if successfull
-    bool queryCarrierToNoise(double &cno);
+    bool queryCarrierToNoise(double cno);
     
     /// \brief  Query Signal Generator status
     ///
     /// \param  state   Current state of signal generator defined in
     ///
     /// \return   True if successfull
-    bool querySignalGenerator(signalGeneratorStateResponse::Enum &state);
+    bool querySignalGenerator(signalGeneratorStateResponse::Enum state);
     
     /// \brief  Query current loaded scenario
     ///
     /// \param  scenario   Current loaded scenario
     ///
     /// \return   True if successfull
-    bool queryLoadedScenario(std::string &scenario);
+    bool queryLoadedScenario(std::string scenario);
     
     // -------------------------------------------------
     // Commands
@@ -150,44 +163,63 @@ namespace spectracom {
     /// \param  power   Transmit power in dBm [-160 to -123.2]
     ///
     /// \return   True if successfull
-    bool commandTransmitPower(double &power);
+    bool commandTransmitPower(double power);
     
     /// \brief  Set PPS output rate
     ///
     /// \param  pps   Enum of PPS options {1, 10, 100, 1000} PPS
     ///
     /// \return   True if successfull
-    bool commandPpsOutput(PpsFrequency &pps);
+    bool commandPpsOutput(PpsFrequency pps);
     
     /// \brief  Set External attenuation
     ///
     /// \param  attenuation External attenuation on output RF signal [0-30 dB]
     ///
     /// \return   True if successfull
-    bool commandExternalAttenuation(double &attenuation);
+    bool commandExternalAttenuation(double attenuation);
     
     /// \brief  Set Max Carrier to Noise
     ///
     /// \param  cno Max carrier to noise of signals [0.0-56.0 dBHz]
     ///
     /// \return   True if successfull
-    bool commandCarrierToNoise(double &cno);
+    bool commandCarrierToNoise(double cno);
     
     /// \brief  Set Signal Generator state
     ///
     /// \param  state   Desired state of signal generator {START,STOP,ARM}
     ///
     /// \return   True if successfull
-    bool commandSignalGenerator(signalGeneratorStateCommands::Enum &state);
+    bool commandSignalGenerator(signalGeneratorStateCommands::Enum state);
     
     /// \brief  Load scenario
     ///
     /// \param  scenario   Name of scenario to load
     ///
     /// \return   True if successfull
-    bool commandLoadScenario(std::string &scenario);
+    bool commandLoadScenario(std::string scenario);
 
-
+    /// \brief  Start scenario
+    ///
+    /// \return   True if successfull
+    bool commandStartScenario();
+    
+    /// \brief  Stop scenario
+    ///
+    /// \return   True if successfull
+    bool commandStopScenario();
+    
+    /// \brief  Hold scenario
+    ///
+    /// \return   True if successfull
+    bool commandHoldScenario();
+    
+    /// \brief  Arm scenario
+    ///
+    /// \return   True if successfull
+    bool commandArmScenario();
+    
     // ------------------------------------------------------------------------
     // Conversion Methods
     
@@ -262,8 +294,28 @@ namespace spectracom {
     signalGeneratorStateResponse::Enum
     toSignalGeneratorStateResponseEnum(std::string inputString);
     
+    /// \brief  Convert string to scenarioControl Enum
+    ///
+    /// \param  inputString   scenarioControl option string
+    ///
+    /// \return scenarioControl enum value
+    scenarioControl::Enum toScenarioControlEnum(std::string inputString);
+    
+    /// \brief  Convert scenarioControl Enum to string
+    ///
+    /// \param  inputEnum   scenarioControl enum option
+    ///
+    /// \return scenarioControl string
+    std::string toScenarioControlString(scenarioControl::Enum inputEnum);
+    
+
   private:
     
+    /// \brief  Attempt to reconnect to device
+    ///
+    /// \param  max_attempts  Optional number of attempts to retry connecting
+    ///
+    /// \return True if successfully reconnected
     bool reConnect(size_t max_attempts=1);
     
     /// \brief  Send query and wait for response
@@ -316,9 +368,7 @@ namespace spectracom {
     
   }; // end class Spectracom
   
-  inline
-  void Spectracom::setLogCallback(logutils::LogCallback logCallback)
-  {
+  inline void Spectracom::setLogCallback(logutils::LogCallback logCallback) {
     log_ = logCallback;
     connection_.setLogCallback(logCallback);
   }
