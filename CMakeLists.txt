@@ -58,11 +58,11 @@ endif(BUILD_WITH_CATKIN)
 ###########
 
 # Add default source files
-set(SPECTRACOM_SRCS src/spectracomGsg6.cpp
+set(SPECTRACOM_SRCS src/SpectracomGsg6.cpp
                     src/PracticalSocket.cpp
                     src/EthernetConnection.cpp)
 # Add default header files
-set(SPECTRACOM_HEADERS  include/spectracom/spectracomGsg6.hpp
+set(SPECTRACOM_HEADERS  include/spectracom/SpectracomGsg6.hpp
                         include/spectracom/spectracomGsg6Protocol.hpp
                         include/spectracom/msg/Options.hpp
                         include/spectracom/msg/Commands.hpp

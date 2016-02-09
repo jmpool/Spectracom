@@ -427,8 +427,8 @@ namespace spectracom {
   }
   
   bool Spectracom::commandTransmitPower(double power) {
-    if ((power < -160) || (power > -123.2)) {
-      log_("In Spectracom::commandTransmitPower() : Power must be within -160 to -123.2 dBm.", logutils::LogLevel::Error);
+    if ((power < -160) || (power > -65.0)) {
+      log_("In Spectracom::commandTransmitPower() : Power must be within -160 to -65.0 dBm.", logutils::LogLevel::Error);
       return false;
     }
     try {

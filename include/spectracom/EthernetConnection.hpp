@@ -49,14 +49,12 @@ class EthernetConnection {
 
 public:
   /// \brief Constructs the ~EthernetConnection object
-  EthernetConnection(int bufferSize=1000,
-                     const logutils::LogCallback&
-                     log = logutils::printLogToStdOut)
+  EthernetConnection(int bufferSize=1000)
   : isConnected_(false),
-    running_(false),
-    log_(log)
+    running_(false)
   {
     incomingBufferSize_ = bufferSize;
+    log_ = logutils::printLogToStdOut;
   };
   
   /// \brief Called on destruction of the ~EthernetConnection object
@@ -73,7 +71,9 @@ public:
   void setRemoteIp(std::string ip){remoteIp_ = ip;};
   void setRemotePort(uint16_t port){remotePort_ = port;}; 
 
-  void setLogCallback(logutils::LogCallback logCallback);
+  void setLogCallback(const logutils::LogCallback& logCallback) {
+    log_ = logCallback;
+  };
 
   /// Signal generated when a message is received on the network interface
   bs2::signal<void(uint8_t *, size_t)> receivedMessage;
@@ -120,14 +120,6 @@ protected:
   logutils::LogCallback log_;
 
 };
-  
-inline
-void EthernetConnection::setLogCallback(logutils::LogCallback logCallback)
-{
-  log_ = logCallback;
-}
-
-
 } // namespace spectracom
 #endif // ETHERNET_CONNECTION_HPP
 //-----------------------------------------------------------------------------

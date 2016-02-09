@@ -36,9 +36,13 @@ namespace spectracom {
   
   class Spectracom {
   public:
-    Spectracom(const logutils::LogCallback& log = logutils::printLogToStdOut)
-    : connection_(MAX_BUFFER_SIZE, log),
-      log_(log){};
+    Spectracom()
+    : connection_(MAX_BUFFER_SIZE)
+    {
+      connection_.setLogCallback(std::bind(&Spectracom::logCallbackHandler,
+                                           this, std::placeholders::_1,
+                                           std::placeholders::_2));
+    };
 
     ~Spectracom(){};
     
@@ -59,13 +63,6 @@ namespace spectracom {
     ///
     /// \returns  void
     void send(std::string data);
-
-    /// \brief  Set log_ callback
-    ///
-    /// \param  logCallback   Function to set as log_
-    ///
-    /// \return void
-    void setLogCallback(logutils::LogCallback logCallback);
     
     /// \brief  Parse messages from file
     ///
@@ -308,7 +305,17 @@ namespace spectracom {
     /// \return scenarioControl string
     std::string toScenarioControlString(scenarioControl::Enum inputEnum);
     
-
+    
+    
+    /// \brief  Handler for EthernetConnection log_ callback
+    void logCallbackHandler(const std::string& msg,
+                            const logutils::LogLevel& level) {
+      log_(msg, level);
+    };
+    
+    /// \brief  Logging signal
+    bs2::signal<void (const std::string&, const logutils::LogLevel&)> log_;
+    
   private:
     
     /// \brief  Attempt to reconnect to device
@@ -364,15 +371,7 @@ namespace spectracom {
     std::string remoteIp_;
     uint16_t remotePort_;
     
-    logutils::LogCallback log_;
-    
   }; // end class Spectracom
-  
-  inline void Spectracom::setLogCallback(logutils::LogCallback logCallback) {
-    log_ = logCallback;
-    connection_.setLogCallback(logCallback);
-  }
-  
 } // end namespace spectracom
 #endif // SPECTRACOM_GSG6_HPP
 ///-----------------------------------------------------------------------------
