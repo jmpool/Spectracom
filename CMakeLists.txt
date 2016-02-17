@@ -8,11 +8,7 @@ endif(${CMAKE_MAJOR_VERSION} GREATER 2)
 # enable C++11 support
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-if (ANDROID)
-  set(CMAKE_CXX_FLAGS "-std=gnu++11")
-else(ANDROID)
-  set(CMAKE_CXX_FLAGS "-std=c++11")
-endif(ANDROID)
+set(CMAKE_CXX_FLAGS "-std=gnu++11")
 
 option(BUILD_WITH_CATKIN "Build with Catkin?" OFF)
 
@@ -63,7 +59,7 @@ set(SPECTRACOM_SRCS src/SpectracomGsg6.cpp
                     src/EthernetConnection.cpp)
 # Add default header files
 set(SPECTRACOM_HEADERS  include/spectracom/SpectracomGsg6.hpp
-                        include/spectracom/spectracomGsg6Protocol.hpp
+                        include/spectracom/SpectracomGsg6Protocol.hpp
                         include/spectracom/msg/Options.hpp
                         include/spectracom/msg/Commands.hpp
                         include/spectracom/msg/Queries.hpp

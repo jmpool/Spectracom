@@ -27,6 +27,7 @@
 #include <string>
 #include <sstream>
 #include <thread>
+#include <mutex>
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 

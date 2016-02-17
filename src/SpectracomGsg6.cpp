@@ -1,4 +1,4 @@
-#include "spectracom/spectracomGsg6.hpp"
+#include "spectracom/SpectracomGsg6.hpp"
 
 namespace spectracom {
   

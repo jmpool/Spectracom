@@ -21,10 +21,12 @@
 
 #include <iostream>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <fstream>
 
 #include "spectracom/EthernetConnection.hpp"
-#include "spectracom/spectracomGsg6Protocol.hpp"
+#include "spectracom/SpectracomGsg6Protocol.hpp"
 #include "spectracom/exceptions/ConnectionException.hpp"
 #include "spectracom/exceptions/SpectracomErrorException.hpp"
 #include "logutils/logutils.hpp"
