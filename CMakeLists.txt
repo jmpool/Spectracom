@@ -81,8 +81,8 @@ add_library(spectracom
 target_link_libraries(spectracom
                       ${catkin_LIBRARIES})
 
-option(BUILD_EXAMPLES "Build examples." ON)
-IF(BUILD_EXAMPLES)
+option(BUILD_SPECTRACOM_EXAMPLES "Build examples." ON)
+IF(BUILD_SPECTRACOM_EXAMPLES)
 # Declare a cpp executable
 add_executable(spectracom_example examples/test.cpp)
 target_link_libraries(spectracom_example
@@ -90,7 +90,7 @@ target_link_libraries(spectracom_example
 add_executable(sim_controller_example examples/sim_controller_example.cpp)
 target_link_libraries(sim_controller_example
                       spectracom)
-ENDIF(BUILD_EXAMPLES)
+ENDIF(BUILD_SPECTRACOM_EXAMPLES)
 
 #############
 ## Install ##
