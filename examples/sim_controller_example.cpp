@@ -1,4 +1,4 @@
-#include "spectracom/spectracomGsg6.hpp"
+#include "spectracom/SpectracomGsg6.hpp"
 
 // 192.168.10.118 5025
 int main(int argc, char **argv)
