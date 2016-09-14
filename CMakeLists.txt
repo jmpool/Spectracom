@@ -91,6 +91,11 @@ target_link_libraries(spectracom_example
 add_executable(sim_controller_example examples/sim_controller_example.cpp)
 target_link_libraries(sim_controller_example
                       spectracom)
+
+add_executable(set_simulator_cno examples/set_simulator_cno.cpp)
+target_link_libraries(set_simulator_cno
+                      spectracom)
+
 ENDIF(BUILD_SPECTRACOM_EXAMPLES)
 
 #############
