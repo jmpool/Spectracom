@@ -24,7 +24,6 @@ int main(int argc, char **argv)
   
   device->commandCarrierToNoise(cno);
   std::this_thread::sleep_for(std::chrono::seconds(3));
-  }
 
   return 0;
 }
