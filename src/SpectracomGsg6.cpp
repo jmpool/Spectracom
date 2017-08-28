@@ -526,6 +526,7 @@ namespace spectracom {
   }
   
   bool Spectracom::commandStartScenario() {
+    cout<<"Entered commandStartScenario"<<endl;
     try {
       std::string cmdStr;
       cmdStr =  toCommandString(commandIds::MsgIds::Source_Scenario_Control)

@@ -82,7 +82,7 @@ add_library(spectracom
 target_link_libraries(spectracom
                       ${catkin_LIBRARIES})
 
-option(BUILD_SPECTRACOM_EXAMPLES "Build examples." ON)
+option(BUILD_SPECTRACOM_EXAMPLES "Build examples." OFF)
 IF(BUILD_SPECTRACOM_EXAMPLES)
 # Declare a cpp executable
 add_executable(spectracom_example examples/test.cpp)
@@ -94,6 +94,10 @@ target_link_libraries(sim_controller_example
 
 add_executable(set_simulator_cno examples/set_simulator_cno.cpp)
 target_link_libraries(set_simulator_cno
+                      spectracom)
+
+add_executable(rsg_test examples/rsg_test.cpp)
+target_link_libraries(rsg_test
                       spectracom)
 
 ENDIF(BUILD_SPECTRACOM_EXAMPLES)

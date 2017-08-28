@@ -318,7 +318,7 @@ namespace spectracom {
     /// \brief  Logging signal
     bs2::signal<void (const std::string&, const logutils::LogLevel&)> log_;
     
-  private:
+  // private:
     
     /// \brief  Attempt to reconnect to device
     ///
